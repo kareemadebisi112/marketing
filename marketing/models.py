@@ -1,0 +1,76 @@
+# models.py
+from django.db import models
+import random
+
+class BaseModel(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+class EmailContact(BaseModel):
+    email = models.EmailField(unique=True)
+    first_name = models.CharField(max_length=255, blank=True, null=True)
+    last_name = models.CharField(max_length=255, blank=True, null=True)
+    phone = models.CharField(max_length=20, blank=True, null=True)
+    company = models.CharField(max_length=255, blank=True, null=True)
+    title = models.CharField(max_length=255, blank=True, null=True)
+    industry = models.CharField(max_length=255, blank=True, null=True)
+    ab_variant = models.CharField(max_length=1, choices=[('A', 'A'), ('B', 'B')], blank=True, null=True)
+    subscribed = models.BooleanField(default=True)
+    engaged = models.BooleanField(default=False)  # Indicates if the user has engaged with the email (opened/clicked)
+
+    def __str__(self):
+        return self.email
+
+    # overwrite the save method to handle A/B testing logic
+    def save(self, *args, **kwargs):
+        if not self.ab_variant:
+            # Assign A or B randomly
+            self.ab_variant = 'A' if random.choice([True, False]) else 'B'
+        if self.engaged:
+            self.subscribed = False  # Self determined based on engagement
+        super().save(*args, **kwargs)
+
+
+class EmailEvent(BaseModel):
+    email = models.EmailField()
+    event_type = models.CharField(max_length=50)  # e.g., opened, clicked, unsubscribed
+    timestamp = models.DateTimeField()
+    metadata = models.JSONField()
+
+class Email(BaseModel):
+    subject = models.CharField(max_length=255)
+    body = models.TextField()
+    sent_at = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(max_length=50, choices=[('sent', 'Sent'), ('failed', 'Failed')], default='sent')
+    contact = models.ForeignKey(EmailContact, on_delete=models.CASCADE, related_name='emails')
+    opened = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Email to {self.contact.email} - {self.subject}"
+    
+class MailingList(BaseModel):
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    contacts = models.ManyToManyField(EmailContact, related_name='mailing_lists')
+
+    def __str__(self):
+        return self.name
+    
+class Campaign(BaseModel):
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    status = models.CharField(
+        max_length=50,
+        choices=[('draft', 'Draft'), ('active', 'Active'), ('completed', 'Completed')],
+        default='draft'
+    )
+    start_date = models.DateTimeField(blank=True, null=True)
+    end_date = models.DateTimeField(blank=True, null=True)
+    mailing_lists = models.ManyToManyField(MailingList, related_name='campaigns')
+
+    def __str__(self):
+        return self.name
+    
