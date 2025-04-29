@@ -1,4 +1,4 @@
-from .models import EmailContact, EmailEvent, Email, Campaign, MailingList, Schedule
+from .models import EmailContact, EmailEvent, EmailObject, Campaign, MailingList, Schedule
 from django.contrib import admin
 from django.urls import path
 from django.shortcuts import render, redirect
@@ -8,7 +8,7 @@ import csv
 
 # admin.site.register(EmailContact)
 admin.site.register(EmailEvent)
-admin.site.register(Email)
+admin.site.register(EmailObject)
 admin.site.register(Campaign)
 # admin.site.register(MailingList)
 

@@ -127,8 +127,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 MAILGUN_DOMAIN = os.environ.get('MAILGUN_DOMAIN', 'your-domain.com')
-EMAIL_NAME = os.environ.get('EMAIL_NAME', 'Your Name')
-EMAIL_COMPANY = os.environ.get('EMAIL_COMPANY', 'Your Company')
+EMAIL_NAME = os.environ.get('MARKETING_EMAIL_NAME', 'Your Name')
+EMAIL_COMPANY = os.environ.get('MARKETING_EMAIL_COMPANY', 'Your Company')
 MAILGUN_API_KEY = os.environ.get('MAILGUN_API_KEY', 'your-mailgun-api-key')
 
 CRONJOBS = [

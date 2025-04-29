@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.utils.timezone import now
-from marketing.models import Schedule, Email
+from marketing.models import Schedule, EmailObject
 from marketing.utils import send_ab_email
 
 class Command(BaseCommand):
@@ -26,7 +26,7 @@ class Command(BaseCommand):
                     status_code, response_text, subject, html = send_ab_email(contact, campaign)
                     if status_code == 200:
                         # Save the email record
-                        Email.objects.create(
+                        EmailObject.objects.create(
                             subject=subject,
                             body=html,
                             contact=contact,

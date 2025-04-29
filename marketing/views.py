@@ -2,7 +2,7 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponse
 from django.utils.dateparse import parse_datetime
-from .models import EmailContact, EmailEvent, Email
+from .models import EmailContact, EmailEvent, EmailObject
 from .utils import send_ab_email
 import datetime
 from django.shortcuts import render
@@ -65,7 +65,7 @@ def mailgun_webhook(request):
         if event == 'opened':
             email_contact = EmailContact.objects.filter(email=email).first()
             if email_contact:
-                email = Email.objects.filter(contact=email_contact, opened=False).first()
+                email = EmailObject.objects.filter(contact=email_contact, opened=False).first()
                 if email:
                     email.opened = True
                     email.save()
@@ -85,7 +85,7 @@ def send_mail_view(request):
         if status_code != 200:
             return JsonResponse({'status': 'failed to send email', 'response': response_text}, status=status_code)
         else:
-            email = Email(
+            email = EmailObject(
                 subject=subject,
                 body=html,
                 contact=contact,

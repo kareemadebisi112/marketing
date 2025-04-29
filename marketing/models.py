@@ -41,7 +41,7 @@ class EmailEvent(BaseModel):
     timestamp = models.DateTimeField()
     metadata = models.JSONField()
 
-class Email(BaseModel):
+class EmailObject(BaseModel):
     subject = models.CharField(max_length=255)
     body = models.TextField()
     sent_at = models.DateTimeField(null=True, blank=True)

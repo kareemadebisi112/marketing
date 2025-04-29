@@ -4,7 +4,7 @@ from django.conf import settings
 from django.template.loader import render_to_string
 import json
 import csv
-# from .models import Email
+# from .models import EmailObject
 
 MAILGUN_API_URL = f"https://api.mailgun.net/v3/{settings.MAILGUN_DOMAIN}/messages"
 MAILGUN_API_KEY = settings.MAILGUN_API_KEY
