@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'marketing',  # Your app name
+    'django_crontab',
 ]
 
 MIDDLEWARE = [
@@ -129,3 +130,7 @@ MAILGUN_DOMAIN = os.environ.get('MAILGUN_DOMAIN', 'your-domain.com')
 EMAIL_NAME = os.environ.get('EMAIL_NAME', 'Your Name')
 EMAIL_COMPANY = os.environ.get('EMAIL_COMPANY', 'Your Company')
 MAILGUN_API_KEY = os.environ.get('MAILGUN_API_KEY', 'your-mailgun-api-key')
+
+CRONJOBS = [
+    ('0 * * * *', 'marketing.management.commands.check_schedule'),  # Run every hour
+]

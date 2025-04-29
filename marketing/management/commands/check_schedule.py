@@ -1,0 +1,41 @@
+from django.core.management.base import BaseCommand
+from django.utils.timezone import now
+from marketing.models import Schedule, Email
+from marketing.utils import send_ab_email
+
+class Command(BaseCommand):
+    help = "Check and send scheduled emails."
+
+    def handle(self, *args, **kwargs):
+        current_day = now().weekday() # 0 = Monday, 6 = Sunday
+        current_time = now().time()
+
+        # Find active schedules for current day and time
+        schedules = Schedule.objects.filter(
+            day_of_week=current_day,
+            time__lte=current_time,
+            active=True
+        )
+
+        for schedule in schedules:
+            campaign = schedule.campaign
+            if campaign.status == 'active':
+                # Get all contacts in the campaign's mailing lists
+                contacts = campaign.mailing_lists.values_list('contacts', flat=True)
+                for contact in contacts:
+                    status_code, response_text, subject, html = send_ab_email(contact)
+                    if status_code == 200:
+                        # Save the email record
+                        Email.objects.create(
+                            subject=subject,
+                            body=html,
+                            contact=contact,
+                            sent_at=now(),
+                            status='sent'
+                        )
+                        self.stdout.write(self.style.SUCCESS(f"Email sent to {contact.email} with subject: {subject}"))
+                    else:
+                        self.stdout.write(self.style.ERROR(f"Failed to send email to {contact.email}: {response_text}"))
+        
+        # Proof of life
+        self.stdout.write(self.style.SUCCESS("Checked schedules and sent emails."))
