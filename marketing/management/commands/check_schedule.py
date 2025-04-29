@@ -23,7 +23,7 @@ class Command(BaseCommand):
                 # Get all contacts in the campaign's mailing lists
                 contacts = campaign.mailing_lists.values_list('contacts', flat=True)
                 for contact in contacts:
-                    status_code, response_text, subject, html = send_ab_email(contact)
+                    status_code, response_text, subject, html = send_ab_email(contact, campaign)
                     if status_code == 200:
                         # Save the email record
                         Email.objects.create(
@@ -36,6 +36,14 @@ class Command(BaseCommand):
                         self.stdout.write(self.style.SUCCESS(f"Email sent to {contact.email} with subject: {subject}"))
                     else:
                         self.stdout.write(self.style.ERROR(f"Failed to send email to {contact.email}: {response_text}"))
+
+                campaign.current_step += 1
+                if campaign.current_step >= campaign.total_steps:
+                    campaign.status = 'completed'
+                    campaign.save()
+                else:
+                    campaign.save()
+                    self.stdout.write(self.style.SUCCESS(f"Campaign {campaign.name} step updated to {campaign.current_step}."))
         
         # Proof of life
         self.stdout.write(self.style.SUCCESS("Checked schedules and sent emails."))

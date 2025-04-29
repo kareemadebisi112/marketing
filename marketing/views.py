@@ -31,7 +31,7 @@ def view_email_template_a(request):
             'contact': contact,
             'variant': contact.ab_variant,
         }
-        return render(request, 'emails/variant_A.html', context)
+        return render(request, 'emails/day_3.html', context)
     return render(request, 'emails/variant_A.html')
 
 def view_email_template_b(request):

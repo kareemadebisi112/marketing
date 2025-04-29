@@ -1,6 +1,7 @@
 # models.py
 from django.db import models
 import random
+from django.utils.text import slugify
 
 class BaseModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -70,9 +71,16 @@ class Campaign(BaseModel):
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
     mailing_lists = models.ManyToManyField(MailingList, related_name='campaigns')
+    current_step = models.IntegerField(default=0)  # Step in the campaign process
+    total_steps = models.IntegerField(default=1)  # Total steps in the campaign process
+    slug = models.SlugField(max_length=255, unique=True, blank=True, null=True)
 
     def __str__(self):
         return self.name
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
     
 class Schedule(BaseModel):
     DAYS_OF_WEEK = [

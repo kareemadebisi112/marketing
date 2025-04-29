@@ -24,6 +24,6 @@ urlpatterns = [
     path('mailgun/webhook/', mailgun_webhook, name='mailgun_webhook'),
     path('unsubscribe/<str:email>/', unsubscribe_view, name='unsubscribe'),
     # path('send_email/', send_mail_view, name='send_email'),  # This should be a POST request in production
-    path('email_template_a/', view_email_template_a, name='email_template_a'),
-    path('email_template_b/', view_email_template_b, name='email_template_b'),
+    path('email_template_a/', view_email_template_a, name='email_template_a'), # Remove when live
+    # path('email_template_b/', view_email_template_b, name='email_template_b'),
 ]

@@ -1,4 +1,4 @@
-from .models import EmailContact, EmailEvent, Email, Campaign, MailingList
+from .models import EmailContact, EmailEvent, Email, Campaign, MailingList, Schedule
 from django.contrib import admin
 from django.urls import path
 from django.shortcuts import render, redirect
@@ -11,6 +11,12 @@ admin.site.register(EmailEvent)
 admin.site.register(Email)
 admin.site.register(Campaign)
 # admin.site.register(MailingList)
+
+@admin.register(Schedule)
+class ScheduleAdmin(admin.ModelAdmin):
+    list_display = ('name', 'day_of_week', 'time')
+    list_filter = ('day_of_week',)
+    list_filter = ('campaign',)
 
 @admin.register(MailingList)
 class MailingListAdmin(admin.ModelAdmin):

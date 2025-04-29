@@ -9,15 +9,48 @@ import csv
 MAILGUN_API_URL = f"https://api.mailgun.net/v3/{settings.MAILGUN_DOMAIN}/messages"
 MAILGUN_API_KEY = settings.MAILGUN_API_KEY
 
-def send_ab_email(contact):
-    pass
+EMAIL_VARIATIONS = {
+    "A": {
+        0: {"subject": "Unlock Hours with Simple Automation", "template": "emails/day_1.html"},
+        1: {"subject": "“This saved us 15 hours a week” – Real Results from Automation", "template": "emails/day_2.html"},
+        2: {"subject": "Closing Soon: Free Consult & Discount for New Clients", "template": "emails/day_3.html"},
+    },
+    "B": {
+        0: {"subject": "Let's Automate the Boring Stuff in Your Workflow", "template": "emails/day_1.html"},
+        1: {"subject": "Still curious about automation?", "template": "emails/day_2.html"},
+        2: {"subject": "One Last Nudge — Let’s Cut the Manual Work", "template": "emails/day_3.html"},
+    },
+}
+
+def send_ab_email(contact, campaign):
     if not contact.subscribed:
         return
+    
+    if contact.ab_variant == 'A':
+        email_variation = EMAIL_VARIATIONS["A"]
+    else:
+        email_variation = EMAIL_VARIATIONS["B"]
 
-    variant = contact.ab_variant or 'A'
-    subject = "Save More Today!" if variant == 'A' else "Unlock Your Exclusive Deal"
-    html = render_to_string(f"emails/variant_{variant}.html")
+    # Determine the email variation based on the current step in the campaign
+    current_step = campaign.current_step
+    total_steps = campaign.total_steps
+    if current_step >= total_steps:
+        return  # No more steps to send emails for
+    
+    email_info = email_variation.get(current_step)
+    if not email_info:
+        return  # No email info for the current step
+    
+    context = {
+        "contact": contact,
+        "current_step": current_step,
+        "total_steps": total_steps,
+    }
+    subject = email_info["subject"]
+    template = email_info["template"]
+    html = render_to_string(template, context)
     lower_name = settings.EMAIL_NAME.lower()
+
 
     data = {
         "from": f"{settings.EMAIL_NAME} @ {settings.EMAIL_COMPANY} <{lower_name}@{settings.MAILGUN_DOMAIN}>",
@@ -25,7 +58,7 @@ def send_ab_email(contact):
         "subject": subject,
         "html": html,
         "o:tracking": "yes",
-        "o:tag": [f"test_campaign_2025", f"variant_{variant}"],
+        "o:tag": [f"{campaign.slug}", f"variant_{contact.ab_variant}"],
         "h:X-Mailgun-Variables": json.dumps({"user_id": contact.id}),
         "o:tracking-clicks": "yes",
         "o:tracking-opens": "yes",
