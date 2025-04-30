@@ -70,7 +70,7 @@ class Campaign(BaseModel):
     )
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
-    mailing_lists = models.ManyToManyField(MailingList, related_name='campaigns', null=True, blank=True)
+    mailing_lists = models.ManyToManyField(MailingList, related_name='campaigns', blank=True)
     current_step = models.IntegerField(default=0)  # Step in the campaign process
     total_steps = models.IntegerField(default=1)  # Total steps in the campaign process
     slug = models.SlugField(max_length=255, unique=True, blank=True, null=True)
@@ -79,7 +79,7 @@ class Campaign(BaseModel):
         return self.name
     
     def save(self, *args, **kwargs):
-        if not self.slug:
+        if not self.slug and self.pk:
             self.slug = slugify(self.name)
     
 class Schedule(BaseModel):
