@@ -15,7 +15,7 @@ MAILGUN_API_KEY
 INSTALLED_APPS = [
 
 	...
-	'marketing',
+	'marketing.marketing',
 	'django_crontab',
 ]
 ```

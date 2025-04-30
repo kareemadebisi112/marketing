@@ -45,7 +45,7 @@ class EmailContactAdmin(admin.ModelAdmin):
                     first_name, last_name, title, company, email, corporate_phone, industry, mailing_list = row
                     if email:
                         if not email == 'Email':  # Skip the header row
-                            EmailContact.objects.create(
+                            contact = EmailContact.objects.create(
                                 first_name=first_name,
                                 last_name=last_name,
                                 title=title,
@@ -57,7 +57,7 @@ class EmailContactAdmin(admin.ModelAdmin):
                             # Add to mailing list if specified
                             if mailing_list:
                                 mailing_list_obj, created = MailingList.objects.get_or_create(name=mailing_list)
-                                mailing_list_obj.contacts.add(email)
+                                mailing_list_obj.contacts.add(contact)
                 messages.success(request, "Emails added successfully from CSV.")
                 return redirect("..")
         else:
