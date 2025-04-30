@@ -79,8 +79,9 @@ class Campaign(BaseModel):
         return self.name
     
     def save(self, *args, **kwargs):
-        if not self.slug and self.pk:
+        if not self.slug:
             self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
     
 class Schedule(BaseModel):
     DAYS_OF_WEEK = [
