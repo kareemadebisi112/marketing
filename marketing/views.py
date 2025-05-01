@@ -71,6 +71,8 @@ def mailgun_webhook(request):
                     email.save()
 
         return JsonResponse({'status': 'ok'})
+    elif request.method == "GET":
+        return JsonResponse({'status': 'ok'})
     return JsonResponse({'status': 'invalid method'}, status=405)
 
 def unsubscribe_view(request, email):
