@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from marketing.views import mailgun_webhook, unsubscribe_view, send_mail_view, view_email_template_a, view_email_template_b, index
+from marketing.marketing.views import mailgun_webhook, unsubscribe_view, send_mail_view, view_email_template_a, view_email_template_b, index
 
 app_name = 'marketing'  # Namespace for the app
 
