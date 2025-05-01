@@ -47,4 +47,4 @@ class Command(BaseCommand):
                     self.stdout.write(self.style.SUCCESS(f"Campaign {campaign.name} step updated to {campaign.current_step}."))
         
         # Proof of life
-        self.stdout.write(self.style.SUCCESS(f"Checked schedule at {current_time} on day {current_day}."))
+        self.stdout.write(self.style.SUCCESS(f"Checked schedule at {current_time}."))
