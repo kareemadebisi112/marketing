@@ -22,7 +22,7 @@ app_name = 'marketing'  # Namespace for the app
 
 
 urlpatterns = [
-    # path('', index, name='index'), # Remove when added to the main app
+    path('', index, name='index'), # Remove when added to the main app
     # path('admin/', admin.site.urls),
     path('mailgun/webhook/', mailgun_webhook, name='mailgun_webhook'),
     path('unsubscribe/<str:email>/', unsubscribe_view, name='unsubscribe'),
