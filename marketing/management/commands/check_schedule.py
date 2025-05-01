@@ -23,7 +23,8 @@ class Command(BaseCommand):
             if campaign.status == 'active':
                 # Get all contacts in the campaign's mailing lists
                 contacts = campaign.mailing_lists.values_list('contacts', flat=True)
-                for contact in contacts:
+                for contact_id in contacts:
+                    contact = EmailContact.objects.get(id=contact_id)
                     status_code, response_text, subject, html = send_ab_email(contact, campaign)
                     if status_code == 200:
                         # Save the email record
