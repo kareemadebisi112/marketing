@@ -8,7 +8,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         current_day = now().weekday() # 0 = Monday, 6 = Sunday
-        current_time = now().time()
+        current_hour = now().time().hour
+        current_time = f"{current_hour:02d}:00:00"
 
         # Find active schedules for current day and time
         schedules = Schedule.objects.filter(
@@ -46,4 +47,4 @@ class Command(BaseCommand):
                     self.stdout.write(self.style.SUCCESS(f"Campaign {campaign.name} step updated to {campaign.current_step}."))
         
         # Proof of life
-        self.stdout.write(self.style.SUCCESS("Checked schedules and sent emails."))
+        self.stdout.write(self.style.SUCCESS(f"Checked schedule at {current_time} on day {current_day}."))
