@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.utils.timezone import now
-from marketing.marketing.models import Schedule, EmailObject
+from marketing.marketing.models import Schedule, EmailObject, EmailContact
 from marketing.marketing.utils import send_ab_email
 
 class Command(BaseCommand):
