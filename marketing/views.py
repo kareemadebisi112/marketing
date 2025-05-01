@@ -7,6 +7,7 @@ from .utils import send_ab_email
 import datetime
 from django.shortcuts import render
 import os
+import json
 
         
 def index(request):
@@ -47,7 +48,35 @@ def view_email_template_b(request):
 @csrf_exempt
 def mailgun_webhook(request):
     if request.method == "POST":
-        payload = request.POST.dict()
+        try:
+            payload = json.loads(request.body.decode('utf-8'))
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON payload'}, status=400)
+
+        event_data = payload.get('event-data', {})
+        # event = event_data.get('event')
+        # email = event_data.get('recipient')
+        # timestamp = datetime.datetime.fromtimestamp(event_data.get('timestamp', 0))
+
+        # EmailEvent.objects.create(
+        #     email=email,
+        #     event_type=event,
+        #     timestamp=timestamp,
+        #     metadata=event_data
+        # )
+
+        # if event == 'unsubscribed':
+        #     EmailContact.objects.filter(email=email).update(subscribed=False)
+
+        # if event == 'opened':
+        #     email_contact = EmailContact.objects.filter(email=email).first()
+        #     if email_contact:
+        #     email_obj = EmailObject.objects.filter(contact=email_contact, opened=False).first()
+        #     if email_obj:
+        #         email_obj.opened = True
+        #         email_obj.save()
+
+        return JsonResponse({'status': 'success', 'payload': event_data}, status=200)
         # event = payload.get('event')
         # email = payload.get('recipient')
         # timestamp = parse_datetime(payload.get('timestamp'))
@@ -69,7 +98,7 @@ def mailgun_webhook(request):
         #         if email:
         #             email.opened = True
         #             email.save()
-        return JsonResponse(payload)
+        # return JsonResponse(payload)
     elif request.method == "GET":
         return JsonResponse({'status': 'ok'})
     return JsonResponse({'status': 'invalid method'}, status=405)
