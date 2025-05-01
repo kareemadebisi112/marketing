@@ -14,7 +14,7 @@ class Command(BaseCommand):
         # Find active schedules for current day and time
         schedules = Schedule.objects.filter(
             day_of_week=current_day,
-            time__lte=current_time,
+            time=current_time,
             active=True
         )
 
@@ -35,7 +35,7 @@ class Command(BaseCommand):
                             sent_at=now(),
                             status='sent'
                         )
-                        self.stdout.write(self.style.SUCCESS(f"Email sent to {contact.email} with subject: {subject}"))
+                        self.stdout.write(self.style.SUCCESS(f"Email sent to {contact.email} with subject: {subject} on Schedule {schedule.name}."))
                     else:
                         self.stdout.write(self.style.ERROR(f"Failed to send email to {contact.email}: {response_text}"))
 
