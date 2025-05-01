@@ -48,7 +48,7 @@ def view_email_template_b(request):
 def mailgun_webhook(request):
     if request.method == "POST":
         payload = request.POST.dict()
-        # event = payload.get('event')
+        event = payload.get('event')
         # email = payload.get('recipient')
         # timestamp = parse_datetime(payload.get('timestamp'))
         
@@ -69,7 +69,7 @@ def mailgun_webhook(request):
         #         if email:
         #             email.opened = True
         #             email.save()
-        return JsonResponse(payload)
+        return JsonResponse(event, safe=False)
     elif request.method == "GET":
         return JsonResponse({'status': 'ok'})
     return JsonResponse({'status': 'invalid method'}, status=405)
