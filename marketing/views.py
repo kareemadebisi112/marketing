@@ -58,6 +58,9 @@ def mailgun_webhook(request):
         email = event_data.get('recipient')
         timestamp = datetime.datetime.fromtimestamp(event_data.get('timestamp', 0))
 
+        if email not in EmailContact.objects.values_list('email', flat=True):
+            return JsonResponse({'status': 'success', 'event': event, 'email': email, 'timestamp': timestamp, 'type': 'test'}, status=200)
+
         # EmailEvent.objects.create(
         #     email=email,
         #     event_type=event,
