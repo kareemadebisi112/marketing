@@ -69,7 +69,7 @@ def mailgun_webhook(request):
         #         if email:
         #             email.opened = True
         #             email.save()
-        return JsonResponse(request, status=200)
+        return JsonResponse(request, status=200, safe=False)
     elif request.method == "GET":
         return JsonResponse({'status': 'ok'})
     return JsonResponse({'status': 'invalid method'}, status=405)
