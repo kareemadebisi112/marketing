@@ -48,29 +48,28 @@ def view_email_template_b(request):
 def mailgun_webhook(request):
     if request.method == "POST":
         payload = request.POST.dict()
-        event = payload.get('event')
-        email = payload.get('recipient')
-        timestamp = parse_datetime(payload.get('timestamp'))
+        # event = payload.get('event')
+        # email = payload.get('recipient')
+        # timestamp = parse_datetime(payload.get('timestamp'))
         
-        EmailEvent.objects.create(
-            email=email,
-            event_type=event,
-            timestamp=timestamp,
-            metadata=payload
-        )
+        # EmailEvent.objects.create(
+        #     email=email,
+        #     event_type=event,
+        #     timestamp=timestamp,
+        #     metadata=payload
+        # )
 
-        if event == 'unsubscribed':
-            EmailContact.objects.filter(email=email).update(subscribed=False)
+        # if event == 'unsubscribed':
+        #     EmailContact.objects.filter(email=email).update(subscribed=False)
 
-        if event == 'opened':
-            email_contact = EmailContact.objects.filter(email=email).first()
-            if email_contact:
-                email = EmailObject.objects.filter(contact=email_contact, opened=False).first()
-                if email:
-                    email.opened = True
-                    email.save()
-
-        return JsonResponse({'status': 'ok'})
+        # if event == 'opened':
+        #     email_contact = EmailContact.objects.filter(email=email).first()
+        #     if email_contact:
+        #         email = EmailObject.objects.filter(contact=email_contact, opened=False).first()
+        #         if email:
+        #             email.opened = True
+        #             email.save()
+        return JsonResponse(payload)
     elif request.method == "GET":
         return JsonResponse({'status': 'ok'})
     return JsonResponse({'status': 'invalid method'}, status=405)
