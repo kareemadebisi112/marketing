@@ -54,9 +54,9 @@ def mailgun_webhook(request):
             return JsonResponse({'error': 'Invalid JSON payload'}, status=400)
 
         event_data = payload.get('event-data', {})
-        # event = event_data.get('event')
-        # email = event_data.get('recipient')
-        # timestamp = datetime.datetime.fromtimestamp(event_data.get('timestamp', 0))
+        event = event_data.get('event')
+        email = event_data.get('recipient')
+        timestamp = datetime.datetime.fromtimestamp(event_data.get('timestamp', 0))
 
         # EmailEvent.objects.create(
         #     email=email,
@@ -76,7 +76,7 @@ def mailgun_webhook(request):
         #         email_obj.opened = True
         #         email_obj.save()
 
-        return JsonResponse({'status': 'success', 'payload': event_data}, status=200)
+        return JsonResponse({'status': 'success', 'event': event, 'email': email, 'timestamp': timestamp}, status=200)
         # event = payload.get('event')
         # email = payload.get('recipient')
         # timestamp = parse_datetime(payload.get('timestamp'))
