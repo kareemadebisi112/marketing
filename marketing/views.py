@@ -3,7 +3,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponse
 from django.utils.dateparse import parse_datetime
 from .models import EmailContact, EmailEvent, EmailObject
-from .utils import send_ab_email
+from .utils import send_ab_email, verify_mailgun_signature
 import datetime
 from django.shortcuts import render
 import os
@@ -48,6 +48,10 @@ def view_email_template_b(request):
 @csrf_exempt
 def mailgun_webhook(request):
     if request.method == "POST":
+        # Verify the Mailgun signature
+        is_valid, message = verify_mailgun_signature(request)
+        if not is_valid:
+            return JsonResponse({'error': message}, status=400)
         try:
             payload = json.loads(request.body.decode('utf-8'))
         except json.JSONDecodeError:
