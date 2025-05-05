@@ -14,13 +14,13 @@ MAILGUN_API_KEY = settings.MAILGUN_API_KEY
 EMAIL_VARIATIONS = {
     "A": {
         0: {"subject": "Unlock Hours with Simple Automation", "template": "emails/day_1.html"},
-        1: {"subject": "“This saved us 15 hours a week” – Real Results from Automation", "template": "emails/day_2.html"},
+        1: {"subject": "Let's Get Real Results from Automation", "template": "emails/day_2.html"},
         2: {"subject": "Closing Soon: Free Consult & Discount for New Clients", "template": "emails/day_3.html"},
     },
     "B": {
         0: {"subject": "Let's Automate the Boring Stuff in Your Workflow", "template": "emails/day_1.html"},
         1: {"subject": "Still curious about automation?", "template": "emails/day_2.html"},
-        2: {"subject": "One Last Nudge — Let’s Cut the Manual Work", "template": "emails/day_3.html"},
+        2: {"subject": "Let’s Cut the Manual Work", "template": "emails/day_3.html"},
     },
 }
 

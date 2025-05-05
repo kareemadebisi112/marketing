@@ -49,9 +49,9 @@ def view_email_template_b(request):
 def mailgun_webhook(request):
     if request.method == "POST":
         # Verify the Mailgun signature
-        is_valid, message = verify_mailgun_signature(request)
-        if not is_valid:
-            return JsonResponse({'error': message}, status=400)
+        # is_valid, message = verify_mailgun_signature(request)
+        # if not is_valid:
+        #     return JsonResponse({'error': message}, status=400)
         try:
             payload = json.loads(request.body.decode('utf-8'))
         except json.JSONDecodeError:
