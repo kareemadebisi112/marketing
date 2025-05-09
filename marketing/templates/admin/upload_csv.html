@@ -2,6 +2,7 @@
 
 {% block content %}
   <h1>{{ title }}</h1>
+  <p>Please ensure your CSV file contains the following columns in the specified order: <strong>first_name, last_name, title, company, email, corporate_phone, industry, mailing_list</strong>.</p>
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}

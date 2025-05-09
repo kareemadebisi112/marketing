@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.utils.timezone import now
-from marketing.marketing.models import Schedule, EmailObject, EmailContact
-from marketing.marketing.utils import send_ab_email
+from marketing.marketing.models import Schedule, EmailObject, EmailContact, CampaignEmailTemplate
+from marketing.marketing.utils import send_email
 
 class Command(BaseCommand):
     help = "Check and send scheduled emails."
@@ -18,34 +18,53 @@ class Command(BaseCommand):
             active=True
         )
 
+        batch_size = 10  # Number of emails to send in one batch
+        delay = 2  # Delay in seconds between batches
+
         for schedule in schedules:
             campaign = schedule.campaign
-            if campaign.status == 'active':
-                # Get all contacts in the campaign's mailing lists
-                contacts = campaign.mailing_lists.values_list('contacts', flat=True)
-                for contact_id in contacts:
-                    contact = EmailContact.objects.get(id=contact_id)
-                    status_code, response_text, subject, html = send_ab_email(contact, campaign)
-                    if status_code == 200:
-                        # Save the email record
-                        EmailObject.objects.create(
-                            subject=subject,
-                            body=html,
-                            contact=contact,
-                            sent_at=now(),
-                            status='sent'
-                        )
-                        self.stdout.write(self.style.SUCCESS(f"Email sent to {contact.email} with subject: {subject} on Schedule {schedule.name}."))
-                    else:
-                        self.stdout.write(self.style.ERROR(f"Failed to send email to {contact.email}: {response_text}"))
+            if campaign.status != 'active':
+                continue
 
-                campaign.current_step += 1
-                if campaign.current_step >= campaign.total_steps:
-                    campaign.status = 'completed'
-                    campaign.save()
+            campaign_email_template = CampaignEmailTemplate.objects.filter(
+                campaign=campaign,
+                order=campaign.current_step + 1
+                ).first()
+            contacts = EmailContact.objects.filter(
+                id__in=campaign.mailing_lists.values_list('contacts', flat=True)
+                )
+
+            for contact in contacts:
+                status_code, response_text, subject, html = send_email(contact, campaign, campaign_email_template.template)
+                if status_code == 200:
+                    EmailObject.objects.create(
+                        subject=subject,
+                        body=html,
+                        contact=contact,
+                        sent_at=now(),
+                        status='sent'
+                        )
+                    self.stdout.write(self.style.SUCCESS(f"Email sent to {contact.email} with subject: {subject} on Schedule {schedule.name}."))
+                elif status_code:
+                    self.stdout.write(self.style.ERROR(f"Failed to send email to {contact.email}: {response_text}"))
                 else:
-                    campaign.save()
-                    self.stdout.write(self.style.SUCCESS(f"Campaign {campaign.name} step updated to {campaign.current_step}."))
+                    self.stdout.write(self.style.SUCCESS(f"Email not sent to unsubscribed {contact.email}."))
+
+            campaign.current_step += 1
+            campaign.status = 'completed' if campaign.current_step >= campaign.total_steps else campaign.status
+            campaign.save()
+            self.stdout.write(self.style.SUCCESS(f"Campaign {campaign.name} step updated to {campaign.current_step}."))
+
+            if campaign.status == 'completed':
+                related_schedules = Schedule.objects.filter(campaign=campaign)
+                for related_schedule in related_schedules:
+                    related_schedule.active = False
+                    related_schedule.save()
+                schedule.active = False
+
+            schedule.last_run = now()
+            schedule.save()
+
         
         # Proof of life
         self.stdout.write(self.style.SUCCESS(f"Checked schedule at {current_time}."))

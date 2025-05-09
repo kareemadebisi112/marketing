@@ -1,4 +1,4 @@
-from .models import EmailContact, EmailEvent, EmailObject, Campaign, MailingList, Schedule
+from .models import EmailContact, EmailEvent, EmailObject, Campaign, MailingList, Schedule, CampaignEmailTemplate, EmailTemplate
 from django.contrib import admin
 from django.urls import path
 from django.shortcuts import render, redirect
@@ -7,25 +7,83 @@ from .forms import CSVUploadForm
 import csv
 
 # admin.site.register(EmailContact)
-admin.site.register(EmailEvent)
-admin.site.register(EmailObject)
-admin.site.register(Campaign)
-# admin.site.register(MailingList)
+DAYS_OF_WEEK = [
+    (0, 'Monday'),
+    (1, 'Tuesday'),
+    (2, 'Wednesday'),
+    (3, 'Thursday'),
+    (4, 'Friday'),
+    (5, 'Saturday'),
+    (6, 'Sunday'),
+]
+@admin.register(EmailObject)
+class EmailObjectAdmin(admin.ModelAdmin):
+    list_display = ('subject', 'sent_at', 'status', 'contact', 'opened')
+    list_filter = ('status', 'sent_at', 'opened')
+    search_fields = ('subject', 'contact__email')
+@admin.register(Campaign)
+class CampaignAdmin(admin.ModelAdmin):
+    list_display = ('name', 'status', 'start_date', 'end_date', 'next_schedule_run', 'total_steps')
+    list_editable = ('status',)
+    ordering = ('start_date',)
+    list_filter = ('status', 'start_date', 'end_date')
+    search_fields = ('name', 'description')
+    prepopulated_fields = {'slug': ('name',)}
+    filter_horizontal = ('mailing_lists',)
+
+    class CampaignEmailTemplateInline(admin.TabularInline):
+        model = CampaignEmailTemplate
+        extra = 1
+
+    class ScheduleInline(admin.TabularInline):
+        model = Schedule
+        extra = 1
+
+    inlines = [CampaignEmailTemplateInline, ScheduleInline]
+
+    def next_schedule_run(self, obj):
+        next_schedule = obj.schedules.filter(active=True).order_by('next_run').first()
+        return next_schedule.next_run if next_schedule else "No active schedule"
+    next_schedule_run.admin_order_field = 'schedules__next_run'
+    next_schedule_run.short_description = 'Next Schedule Run'
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.order_by('name')
+@admin.register(EmailTemplate)
+class EmailTemplateAdmin(admin.ModelAdmin):
+    list_display = ('subject_a', 'subject_b')
+    search_fields = ('subject_a', 'subject_b')
 
 @admin.register(Schedule)
 class ScheduleAdmin(admin.ModelAdmin):
-    list_display = ('name', 'day_of_week', 'time')
-    list_filter = ('day_of_week',)
-    list_filter = ('campaign',)
+    list_display = ('name', 'day_of_week_display', 'time', 'campaign', 'active', 'last_run', 'next_run')
+    list_filter = ('day_of_week', 'campaign', 'active')
+    search_fields = ('name', 'campaign__name')
+    # list_editable = ('active', 'time')
+    ordering = ('day_of_week', 'time')
+
+
+    def day_of_week_display(self, obj):
+        return dict(DAYS_OF_WEEK).get(obj.day_of_week, 'Unknown')
+    day_of_week_display.short_description = 'Day of Week'
 
 @admin.register(MailingList)
 class MailingListAdmin(admin.ModelAdmin):
-    list_display = ('name', 'description')
+    list_display = ('name', 'description', 'total_emails')
     filter_horizontal = ('contacts',)
+
+    def total_emails(self, obj):
+        return obj.contacts.count()
+    total_emails.short_description = 'Total Emails'
 
 @admin.register(EmailContact)
 class EmailContactAdmin(admin.ModelAdmin):
-    list_display = ('email', 'first_name', 'last_name', 'ab_variant', 'subscribed')
+    list_display = ('email', 'first_name', 'last_name', 'company', 'industry', 'ab_variant', 'subscribed', 'engaged')
+    list_filter = ('ab_variant', 'subscribed', 'engaged', 'industry', 'mailing_lists')
+    list_editable = ('engaged',)
+    search_fields = ('email', 'first_name', 'last_name', 'company', 'industry')
+
 
     def get_urls(self):
         urls = super().get_urls()
@@ -68,3 +126,9 @@ class EmailContactAdmin(admin.ModelAdmin):
             'title': "Upload CSV File",
         }
         return render(request, 'admin/upload_csv.html', context)
+    
+@admin.register(EmailEvent)
+class EmailEventAdmin(admin.ModelAdmin):
+    list_display = ('event_type','email', 'timestamp')
+    list_filter = ('event_type', 'timestamp', 'email')
+    search_fields = ('email_object__subject', 'contact__email')

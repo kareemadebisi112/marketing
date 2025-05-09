@@ -1,13 +1,12 @@
 # views.py
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponse
-from django.utils.dateparse import parse_datetime
-from .models import EmailContact, EmailEvent, EmailObject
-from .utils import send_ab_email, verify_mailgun_signature
+from .models import EmailContact, EmailEvent, EmailObject, EmailTemplate
+from .utils import send_email, verify_mailgun_signature
 import datetime
 from django.shortcuts import render
-import os
 import json
+from django.template import Template, Context
 
         
 def index(request):
@@ -25,25 +24,27 @@ def index(request):
         return JsonResponse({'emails': []})
     return render(request, 'index.html', context)
 
-def view_email_template_a(request):
+def view_email_template(request, id):
+    if not request.user.is_staff:
+        return JsonResponse({'error': 'Unauthorized access'}, status=403)
+    
     contact = EmailContact.objects.filter(ab_variant='A').first()
     if contact:
         context = {
             'contact': contact,
             'variant': contact.ab_variant,
         }
-        return render(request, 'emails/day_3.html', context)
-    return render(request, 'emails/variant_A.html')
+    
+    template = EmailTemplate.objects.get(id=id)
+    template_content = template.template
+    subject = template.subject_a if contact.ab_variant == 'A' else template.subject_b
+    subject = subject.replace("{{ contact.company }}", contact.company or "Your Company")
+    rendered_template = f"<h1>{subject}</h1>" + Template(template_content).render(Context(context))
 
-def view_email_template_b(request):
-    contact = EmailContact.objects.filter(ab_variant='B').first()
-    if contact:
-        context = {
-            'contact': contact,
-            'variant': contact.ab_variant,
-        }
-        return render(request, 'emails/variant_B.html', context)
-    return render(request, 'emails/variant_B.html')
+    return HttpResponse(rendered_template)
+
+
+
 
 @csrf_exempt
 def mailgun_webhook(request):
@@ -75,6 +76,18 @@ def mailgun_webhook(request):
         if event == 'unsubscribed':
             EmailContact.objects.filter(email=email).update(subscribed=False)
 
+        if event == 'failed':
+            email_contact = EmailContact.objects.filter(email=email).first()
+            if email_contact:
+                # Remove email from mailing list
+                email_contact.subscribed = False
+                email_contact.save()
+                
+                email_obj = EmailObject.objects.filter(contact=email_contact, opened=False).first()
+                if email_obj:
+                    email_obj.status = 'failed'
+                    email_obj.save()
+
         if event == 'opened':
             email_contact = EmailContact.objects.filter(email=email).first()
             if email_contact:
@@ -104,7 +117,7 @@ def unsubscribe_view(request, email):
 def send_mail_view(request):
     for contact in EmailContact.objects.all():
         print(contact.email, contact.ab_variant)
-        status_code, response_text,subject, html = send_ab_email(contact)
+        status_code, response_text,subject, html = send_email(contact)
         if status_code != 200:
             return JsonResponse({'status': 'failed to send email', 'response': response_text}, status=status_code)
         else:

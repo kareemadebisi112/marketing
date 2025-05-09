@@ -2,6 +2,9 @@
 from django.db import models
 import random
 from django.utils.text import slugify
+from django.urls import reverse
+from django.utils import timezone
+
 
 class BaseModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -41,6 +44,18 @@ class EmailEvent(BaseModel):
     timestamp = models.DateTimeField()
     metadata = models.JSONField()
 
+class EmailTemplate(BaseModel):
+    # name = models.CharField(max_length=255)
+    subject_a = models.CharField(max_length=255)
+    subject_b = models.CharField(max_length=255)
+    template = models.TextField()
+
+    def __str__(self):
+        return f"Email Template - {self.subject_a} / {self.subject_b}"
+    
+    def get_absolute_url(self):
+        return reverse('view_email_template', args=[self.id])
+
 class EmailObject(BaseModel):
     subject = models.CharField(max_length=255)
     body = models.TextField()
@@ -71,17 +86,37 @@ class Campaign(BaseModel):
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
     mailing_lists = models.ManyToManyField(MailingList, related_name='campaigns', blank=True)
+    templates = models.ManyToManyField(
+        EmailTemplate,
+        related_name='campaigns',
+        through='CampaignEmailTemplate',
+        blank=True
+    )
     current_step = models.IntegerField(default=0)  # Step in the campaign process
-    total_steps = models.IntegerField(default=1)  # Total steps in the campaign process
+    total_steps = models.IntegerField(default=0)  # Total steps in the campaign process
     slug = models.SlugField(max_length=255, unique=True, blank=True, null=True)
 
     def __str__(self):
         return self.name
-    
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
+        if self.pk:  # Check if the campaign already exists
+            if self.templates.exists():
+                self.total_steps = self.templates.count()
         super().save(*args, **kwargs)
+
+class CampaignEmailTemplate(BaseModel):
+    campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE, related_name='email_templates')
+    template = models.ForeignKey(EmailTemplate, on_delete=models.CASCADE, related_name='campaign_email_templates')
+    order = models.IntegerField()  # Step in the campaign process
+
+    class Meta:
+        unique_together = ('campaign', 'template')
+
+    def __str__(self):
+        return f"{self.campaign.name} - {self.template.subject_a} / {self.template.subject_b}"
     
 class Schedule(BaseModel):
     DAYS_OF_WEEK = [
@@ -99,9 +134,18 @@ class Schedule(BaseModel):
     time = models.TimeField()
     campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE, related_name='schedules')
     active = models.BooleanField(default=True)
-    # last_run = models.DateTimeField(null=True, blank=True)
-    # next_run = models.DateTimeField(null=True, blank=True)
+    last_run = models.DateTimeField(null=True, blank=True)
+    next_run = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         day = dict(self.DAYS_OF_WEEK).get(self.day_of_week, 'Unknown')
         return f"{self.name} - {day} at {self.time}"
+    
+    def save(self, *args, **kwargs):
+        if self.active:
+            today = timezone.now()
+            next_run_date = today + timezone.timedelta(days=(self.day_of_week - today.weekday()) % 7)
+            self.next_run = timezone.datetime.combine(next_run_date, self.time, tzinfo=timezone.get_current_timezone())
+        if not self.active:
+            self.next_run = None
+        super().save(*args, **kwargs)

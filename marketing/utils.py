@@ -1,77 +1,43 @@
 # utils.py
 import requests
 from django.conf import settings
-from django.template.loader import render_to_string
+from django.template import Template, Context
 import json
-import csv
 import hmac
 import hashlib
-# from .models import EmailObject
 
 MAILGUN_API_URL = f"https://api.mailgun.net/v3/{settings.MAILGUN_DOMAIN}/messages"
 MAILGUN_API_KEY = settings.MAILGUN_API_KEY
 
-EMAIL_VARIATIONS = {
-    "A": {
-        0: {"subject": "Unlock Hours with Simple Automation", "template": "emails/day_1.html"},
-        1: {"subject": "Quick Follow-Up: Ready to Chat About Automation?", "template": "emails/day_2.html"},
-        2: {"subject": "Should I Circle Back Another Time?", "template": "emails/day_3.html"},
-    },
-    "B": {
-        0: {"subject": "Let's Automate the Boring Stuff in Your Workflow", "template": "emails/day_1.html"},
-        1: {"subject": "Still curious about automation?", "template": "emails/day_2.html"},
-        2: {"subject": "Let’s Cut the Manual Work", "template": "emails/day_3.html"},
-    },
-}
+def send_email(contact, campaign, email_template):
+    if not (contact.subscribed and email_template):
+        return None  # Skip if unsubscribed or no template provided
 
-def send_ab_email(contact, campaign):
-    if not contact.subscribed:
-        return
-    
-    if contact.ab_variant == 'A':
-        email_variation = EMAIL_VARIATIONS["A"]
-    else:
-        email_variation = EMAIL_VARIATIONS["B"]
-
-    # Determine the email variation based on the current step in the campaign
     current_step = campaign.current_step
-    total_steps = campaign.total_steps
-    if current_step >= total_steps:
-        return  # No more steps to send emails for
-    
-    email_info = email_variation.get(current_step)
-    if not email_info:
-        return  # No email info for the current step
-    
-    context = {
-        "contact": contact,
-        "current_step": current_step,
-        "total_steps": total_steps,
-    }
-    subject = email_info["subject"]
-    template = email_info["template"]
-    html = render_to_string(template, context)
-    lower_name = settings.EMAIL_NAME.lower()
+    if current_step >= campaign.total_steps or campaign.status == 'completed':
+        return None  # No more steps to send emails for
 
+    subject = (email_template.subject_a if contact.ab_variant == 'A' 
+               else email_template.subject_b).replace(
+                   "{{ contact.company }}", contact.company or "Your Company")
+
+    context = {"contact": contact, "current_step": current_step, "total_steps": campaign.total_steps}
+    template = Template(email_template.template)
+    html = template.render(Context(context))
 
     data = {
-        "from": f"{settings.EMAIL_NAME} @ {settings.EMAIL_COMPANY} <{lower_name}@{settings.MAILGUN_DOMAIN}>",
+        "from": f"{settings.EMAIL_NAME} @ {settings.EMAIL_COMPANY} <{settings.EMAIL_NAME.lower()}@{settings.MAILGUN_DOMAIN}>",
         "to": contact.email,
         "subject": subject,
         "html": html,
         "o:tracking": "yes",
-        "o:tag": [f"{campaign.slug}", f"variant_{contact.ab_variant}"],
+        "o:tag": [campaign.slug, f"variant_{contact.ab_variant}"],
         "h:X-Mailgun-Variables": json.dumps({"user_id": contact.id}),
         "o:tracking-clicks": "yes",
         "o:tracking-opens": "yes",
     }
 
-    response = requests.post(
-        MAILGUN_API_URL,
-        auth=("api", MAILGUN_API_KEY),
-        data=data,
-    )
-
+    response = requests.post(MAILGUN_API_URL, auth=("api", MAILGUN_API_KEY), data=data)
     return response.status_code, response.text, subject, html
 
 
