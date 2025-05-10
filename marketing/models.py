@@ -54,7 +54,7 @@ class EmailTemplate(BaseModel):
         return f"Email Template - {self.subject_a} / {self.subject_b}"
     
     def get_absolute_url(self):
-        return reverse('view_email_template', args=[self.id])
+        return reverse('marketing:view_email_template', args=[self.id])
 
 class EmailObject(BaseModel):
     subject = models.CharField(max_length=255)
