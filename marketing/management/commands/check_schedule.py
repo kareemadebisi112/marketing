@@ -36,6 +36,9 @@ class Command(BaseCommand):
 
             for contact in contacts:
                 status_code, response_text, subject, html = send_email(contact, campaign, campaign_email_template.template)
+                if not status_code:
+                    self.stdout.write(self.style.WARNING(f"Contact {contact.email} is unsubscribed."))
+                    continue
                 if status_code == 200:
                     EmailObject.objects.create(
                         subject=subject,
