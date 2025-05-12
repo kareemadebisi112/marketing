@@ -105,7 +105,11 @@ class EmailContactAdmin(admin.ModelAdmin):
                 for i, row in enumerate(reader):
                     if i == 0:  # Skip the header row
                         continue
-                    first_name, last_name, title, company, email, corporate_phone, industry, mailing_list = row
+                    try:
+                        first_name, last_name, title, company, email, corporate_phone, industry, mailing_list = row
+                    except ValueError:
+                        messages.error(request, f"Row {i + 1} has an incorrect number of columns. Skipping.")
+                        continue
                     if email:
                         if EmailContact.objects.filter(email=email).exists():
                             messages.warning(request, f"Email {email} already exists. Skipping.")
