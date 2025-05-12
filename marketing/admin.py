@@ -24,9 +24,9 @@ class EmailObjectAdmin(admin.ModelAdmin):
 @admin.register(Campaign)
 class CampaignAdmin(admin.ModelAdmin):
     list_display = ('name', 'status', 'start_date', 'end_date', 'next_schedule_run', 'total_steps')
-    def get_queryset(self, request):
-        queryset = super().get_queryset(request)
-        return queryset.filter(status='active')
+    # def get_queryset(self, request):
+    #     queryset = super().get_queryset(request)
+    #     return queryset.filter(status='active')
     list_editable = ('status',)
     ordering = ('start_date',)
     list_filter = ('status', 'start_date', 'end_date')
@@ -50,9 +50,9 @@ class CampaignAdmin(admin.ModelAdmin):
     next_schedule_run.admin_order_field = 'schedules__next_run'
     next_schedule_run.short_description = 'Next Schedule Run'
 
-    # def get_queryset(self, request):
-    #     queryset = super().get_queryset(request)
-    #     return queryset.order_by('name')
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.order_by('name')
 @admin.register(EmailTemplate)
 class EmailTemplateAdmin(admin.ModelAdmin):
     list_display = ('subject_a', 'subject_b')
