@@ -144,8 +144,11 @@ class Schedule(BaseModel):
     def save(self, *args, **kwargs):
         if self.active:
             today = timezone.now()
-            next_run_date = today + timezone.timedelta(days=(self.day_of_week - today.weekday()) % 7)
-            self.next_run = timezone.datetime.combine(next_run_date, self.time, tzinfo=timezone.get_current_timezone())
+            if self.last_run:
+                self.next_run = self.last_run + timezone.timedelta(days=7)
+            else:
+                next_run_date = today + timezone.timedelta(days=(self.day_of_week - today.weekday()) % 7)
+                self.next_run = timezone.datetime.combine(next_run_date, self.time, tzinfo=timezone.get_current_timezone())
         if not self.active:
             self.next_run = None
         super().save(*args, **kwargs)
