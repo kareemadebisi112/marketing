@@ -28,7 +28,7 @@ class CampaignAdmin(admin.ModelAdmin):
         queryset = super().get_queryset(request)
         return queryset.filter(status='active').order_by('next_schedule_run')
     list_editable = ('status',)
-    ordering = ('next_schedule_run',)
+    ordering = ('start_date',)
     list_filter = ('status', 'start_date', 'end_date')
     search_fields = ('name', 'description')
     prepopulated_fields = {'slug': ('name',)}
