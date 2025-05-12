@@ -102,25 +102,29 @@ class EmailContactAdmin(admin.ModelAdmin):
                 csv_file = request.FILES['csv_file']
                 decoded_file = csv_file.read().decode('utf-8').splitlines()
                 reader = csv.reader(decoded_file)
-                for row in reader:
+                for i, row in enumerate(reader):
+                    if i == 0:  # Skip the header row
+                        continue
                     first_name, last_name, title, company, email, corporate_phone, industry, mailing_list = row
                     if email:
-                        if not email == 'Email':  # Skip the header row
-                            contact = EmailContact.objects.create(
-                                first_name=first_name,
-                                last_name=last_name,
-                                title=title,
-                                company=company,
-                                email=email,
-                                phone=corporate_phone,
-                                industry=industry,
-                            )
-                            # Add to mailing list if specified
-                            if mailing_list:
-                                mailing_list_obj, created = MailingList.objects.get_or_create(name=mailing_list)
-                                mailing_list_obj.contacts.add(contact)
-                messages.success(request, "Emails added successfully from CSV.")
-                return redirect("..")
+                        if EmailContact.objects.filter(email=email).exists():
+                            messages.warning(request, f"Email {email} already exists. Skipping.")
+                            continue
+                        contact = EmailContact.objects.create(
+                            first_name=first_name,
+                            last_name=last_name,
+                            title=title,
+                            company=company,
+                            email=email,
+                            phone=corporate_phone,
+                            industry=industry,
+                        )
+                        # Add to mailing list if specified
+                        if mailing_list:
+                            mailing_list_obj, created = MailingList.objects.get_or_create(name=mailing_list)
+                            mailing_list_obj.contacts.add(contact)
+            messages.success(request, "Emails added successfully from CSV.")
+            return redirect("..")
         else:
             form = CSVUploadForm()
 
