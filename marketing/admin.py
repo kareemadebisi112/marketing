@@ -24,8 +24,11 @@ class EmailObjectAdmin(admin.ModelAdmin):
 @admin.register(Campaign)
 class CampaignAdmin(admin.ModelAdmin):
     list_display = ('name', 'status', 'start_date', 'end_date', 'next_schedule_run', 'total_steps')
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.filter(status='active').order_by('next_schedule_run')
     list_editable = ('status',)
-    ordering = ('start_date',)
+    ordering = ('next_schedule_run',)
     list_filter = ('status', 'start_date', 'end_date')
     search_fields = ('name', 'description')
     prepopulated_fields = {'slug': ('name',)}
@@ -47,9 +50,9 @@ class CampaignAdmin(admin.ModelAdmin):
     next_schedule_run.admin_order_field = 'schedules__next_run'
     next_schedule_run.short_description = 'Next Schedule Run'
 
-    def get_queryset(self, request):
-        queryset = super().get_queryset(request)
-        return queryset.order_by('name')
+    # def get_queryset(self, request):
+    #     queryset = super().get_queryset(request)
+    #     return queryset.order_by('name')
 @admin.register(EmailTemplate)
 class EmailTemplateAdmin(admin.ModelAdmin):
     list_display = ('subject_a', 'subject_b')
@@ -61,7 +64,7 @@ class ScheduleAdmin(admin.ModelAdmin):
     list_filter = ('day_of_week', 'campaign', 'active')
     search_fields = ('name', 'campaign__name')
     # list_editable = ('active', 'time')
-    ordering = ('day_of_week', 'time')
+    ordering = ('next_run',)
 
 
     def day_of_week_display(self, obj):
