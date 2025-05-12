@@ -26,7 +26,7 @@ class CampaignAdmin(admin.ModelAdmin):
     list_display = ('name', 'status', 'start_date', 'end_date', 'next_schedule_run', 'total_steps')
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
-        return queryset.filter(status='active').order_by('next_schedule_run')
+        return queryset.filter(status='active')
     list_editable = ('status',)
     ordering = ('start_date',)
     list_filter = ('status', 'start_date', 'end_date')
