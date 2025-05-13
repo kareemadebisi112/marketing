@@ -55,6 +55,7 @@
             <th>Emails Sent</th>
             <th>Emails Opened</th>
             <th>Emails Failed</th>
+            <th>Open Rate</th>
         </tr>
         {% for campaign in campaign_analytics %}
         <tr>
@@ -62,6 +63,7 @@
             <td>{{ campaign.emails_sent }}</td>
             <td>{{ campaign.emails_opened }}</td>
             <td>{{ campaign.emails_failed }}</td>
+            <td>{{ campaign.open_rate }}</td>
         </tr>
         {% endfor %}
     </table>
