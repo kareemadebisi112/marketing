@@ -7,6 +7,7 @@ import datetime
 from django.shortcuts import render
 import json
 from django.template import Template, Context
+from django.db.models import Count, Q
 
         
 def index(request):
@@ -114,12 +115,31 @@ def unsubscribe_view(request, email):
     return HttpResponse("You've been unsubscribed.")
 
 def analytics_view(request):
-    # Calculate analytics
+    if not request.user.is_staff:
+        return JsonResponse({'error': 'Unauthorized access'}, status=403)
+
+    # Calculate general analytics
     total_contacts = EmailContact.objects.count()
     total_campaigns = Campaign.objects.count()
     total_emails_sent = EmailObject.objects.filter(status='sent').count()
     total_emails_opened = EmailObject.objects.filter(opened=True).count()
+    total_emails_failed = EmailObject.objects.filter(status='failed').count()
+    total_unsubscribed = EmailContact.objects.filter(subscribed=False).count()
+    total_emails_clicked = EmailEvent.objects.filter(event_type='clicked').count()
+    engaged_contacts = EmailContact.objects.filter(engaged=True).count()
+
+    # Calculate rates
     open_rate = (total_emails_opened / total_emails_sent * 100) if total_emails_sent > 0 else 0
+    bounce_rate = (total_emails_failed / total_emails_sent * 100) if total_emails_sent > 0 else 0
+    unsubscribe_rate = (total_unsubscribed / total_contacts * 100) if total_contacts > 0 else 0
+    click_rate = (total_emails_clicked / total_emails_sent * 100) if total_emails_sent > 0 else 0
+
+    # Campaign-specific analytics
+    campaign_analytics = Campaign.objects.annotate(
+        emails_sent=Count('email_templates__campaign_email_templates__emailobject', filter=Q(email_templates__campaign_email_templates__emailobject__status='sent')),
+        emails_opened=Count('email_templates__campaign_email_templates__emailobject', filter=Q(email_templates__campaign_email_templates__emailobject__opened=True)),
+        emails_failed=Count('email_templates__campaign_email_templates__emailobject', filter=Q(email_templates__campaign_email_templates__emailobject__status='failed')),
+    ).values('name', 'emails_sent', 'emails_opened', 'emails_failed')
 
     # Pass analytics data to the template
     context = {
@@ -127,6 +147,14 @@ def analytics_view(request):
         'total_campaigns': total_campaigns,
         'total_emails_sent': total_emails_sent,
         'total_emails_opened': total_emails_opened,
+        'total_emails_failed': total_emails_failed,
+        'total_unsubscribed': total_unsubscribed,
+        'total_emails_clicked': total_emails_clicked,
+        'engaged_contacts': engaged_contacts,
         'open_rate': f"{open_rate:.2f}%",
+        'bounce_rate': f"{bounce_rate:.2f}%",
+        'unsubscribe_rate': f"{unsubscribe_rate:.2f}%",
+        'click_rate': f"{click_rate:.2f}%",
+        'campaign_analytics': campaign_analytics,
     }
     return render(request, 'analytics.html', context)
