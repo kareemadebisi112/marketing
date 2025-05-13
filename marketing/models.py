@@ -64,6 +64,7 @@ class EmailObject(BaseModel):
     contact = models.ForeignKey(EmailContact, on_delete=models.CASCADE, related_name='emails')
     campaign = models.ForeignKey('Campaign', on_delete=models.CASCADE, related_name='emails', blank=True, null=True)
     opened = models.BooleanField(default=False)
+    replied = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Email to {self.contact.email} - {self.subject}"

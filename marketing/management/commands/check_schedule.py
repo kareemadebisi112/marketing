@@ -47,7 +47,8 @@ class Command(BaseCommand):
                         body=html,
                         contact=contact,
                         sent_at=now(),
-                        status='sent'
+                        status='sent',
+                        campaign=campaign,
                         )
                     self.stdout.write(self.style.SUCCESS(f"Email sent to {contact.email} with subject: {subject} on Schedule {schedule.name}."))
                 elif status_code:
