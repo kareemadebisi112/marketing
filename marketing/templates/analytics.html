@@ -57,7 +57,27 @@
             <!-- <th>Emails Failed</th> -->
             <th>Open Rate</th>
         </tr>
-        {% for campaign in campaign_analytics %}
+        {% for campaign in active_campigns %}
+        <tr>
+            <td>{{ campaign.name }}</td>
+            <td>{{ campaign.emails_sent }}</td>
+            <td>{{ campaign.emails_opened }}</td>
+            <!-- <td>{{ campaign.emails_failed }}</td> -->
+            <td>{{ campaign.open_rate }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Completed Campaign Metrics</h2>
+    <table>
+        <tr>
+            <th>Campaign</th>
+            <th>Emails Sent</th>
+            <th>Emails Opened</th>
+            <!-- <th>Emails Failed</th> -->
+            <th>Open Rate</th>
+        </tr>
+        {% for campaign in completed_campaigns %}
         <tr>
             <td>{{ campaign.name }}</td>
             <td>{{ campaign.emails_sent }}</td>

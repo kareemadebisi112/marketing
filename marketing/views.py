@@ -134,12 +134,15 @@ def analytics_view(request):
     unsubscribe_rate = (total_unsubscribed / total_contacts * 100) if total_contacts > 0 else 0
     click_rate = (total_emails_clicked / total_emails_sent * 100) if total_emails_sent > 0 else 0
 
-    campaign_analytics = Campaign.objects.filter(status='active').annotate(
+    campaign_analytics = Campaign.objects.annotate(
         emails_sent=Count('emails', filter=Q(emails__status='sent')),
         emails_opened=Count('emails', filter=Q(emails__opened=True)),
         emails_failed=Count('emails', filter=Q(emails__status='failed')),
         open_rate=Count('emails', filter=Q(emails__opened=True)) * 100.0 / Count('emails', filter=Q(emails__status='sent'))
     ).values('name', 'emails_sent', 'emails_opened', 'emails_failed', 'open_rate').order_by('-emails_sent')
+
+    active_campigns = campaign_analytics.filter(status='active')
+    completed_campaigns = campaign_analytics.filter(status='completed')
 
     # Fetch recent email events
     recent_events = EmailEvent.objects.order_by('-timestamp')[:10].values(
@@ -160,7 +163,8 @@ def analytics_view(request):
         'bounce_rate': f"{bounce_rate:.2f}%",
         'unsubscribe_rate': f"{unsubscribe_rate:.2f}%",
         'click_rate': f"{click_rate:.2f}%",
-        'campaign_analytics': campaign_analytics,
+        'active_campigns': active_campigns,
+        'completed_campaigns': completed_campaigns,
         'recent_events': recent_events,
     }
     return render(request, 'analytics.html', context)
