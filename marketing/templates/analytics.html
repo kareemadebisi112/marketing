@@ -13,7 +13,7 @@
             color: #333;
         }
         table {
-            width: 100%;
+            width: 50%;
             border-collapse: collapse;
             margin: 20px 0;
         }
@@ -38,23 +38,23 @@
         <tr><td>Total Campaigns</td><td>{{ total_campaigns }}</td></tr>
         <tr><td>Total Emails Sent</td><td>{{ total_emails_sent }}</td></tr>
         <tr><td>Total Emails Opened</td><td>{{ total_emails_opened }}</td></tr>
-        <tr><td>Total Emails Failed</td><td>{{ total_emails_failed }}</td></tr>
+        <!-- <tr><td>Total Emails Failed</td><td>{{ total_emails_failed }}</td></tr> -->
         <tr><td>Total Emails Clicked</td><td>{{ total_emails_clicked }}</td></tr>
-        <tr><td>Total Unsubscribed</td><td>{{ total_unsubscribed }}</td></tr>
-        <tr><td>Engaged Contacts</td><td>{{ engaged_contacts }}</td></tr>
+        <!-- <tr><td>Total Unsubscribed</td><td>{{ total_unsubscribed }}</td></tr> -->
+        <!-- <tr><td>Engaged Contacts</td><td>{{ engaged_contacts }}</td></tr> -->
         <tr><td>Open Rate</td><td>{{ open_rate }}</td></tr>
-        <tr><td>Bounce Rate</td><td>{{ bounce_rate }}</td></tr>
+        <!-- <tr><td>Bounce Rate</td><td>{{ bounce_rate }}</td></tr>
         <tr><td>Unsubscribe Rate</td><td>{{ unsubscribe_rate }}</td></tr>
-        <tr><td>Click Rate</td><td>{{ click_rate }}</td></tr>
+        <tr><td>Click Rate</td><td>{{ click_rate }}</td></tr> -->
     </table>
 
-    <h2>Campaign-Specific Metrics</h2>
+    <h2>Active Campaign Metrics</h2>
     <table>
         <tr>
             <th>Campaign</th>
             <th>Emails Sent</th>
             <th>Emails Opened</th>
-            <th>Emails Failed</th>
+            <!-- <th>Emails Failed</th> -->
             <th>Open Rate</th>
         </tr>
         {% for campaign in campaign_analytics %}
@@ -62,7 +62,7 @@
             <td>{{ campaign.name }}</td>
             <td>{{ campaign.emails_sent }}</td>
             <td>{{ campaign.emails_opened }}</td>
-            <td>{{ campaign.emails_failed }}</td>
+            <!-- <td>{{ campaign.emails_failed }}</td> -->
             <td>{{ campaign.open_rate }}</td>
         </tr>
         {% endfor %}
