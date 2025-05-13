@@ -142,8 +142,11 @@ def analytics_view(request):
     # ).values('name', 'emails_sent', 'emails_opened', 'emails_failed')
 
     campaign_analytics = Campaign.objects.annotate(
-        emails_sent = Count('campaignemailtemplate__emailobject', filter=Q(campaignemailtemplate__emailobject__status='sent')),
-    )
+        emails_sent=Count(
+            'email_templates__campaign_email_templates__emailobject',
+            filter=Q(email_templates__campaign_email_templates__emailobject__status='sent')
+        )
+    ).values('name', 'emails_sent')
     
     # Pass analytics data to the template
     context = {
@@ -159,6 +162,6 @@ def analytics_view(request):
         'bounce_rate': f"{bounce_rate:.2f}%",
         'unsubscribe_rate': f"{unsubscribe_rate:.2f}%",
         'click_rate': f"{click_rate:.2f}%",
-        # 'campaign_analytics': campaign_analytics,
+        'campaign_analytics': campaign_analytics,
     }
     return render(request, 'analytics.html', context)
