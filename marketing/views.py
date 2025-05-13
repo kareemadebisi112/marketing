@@ -138,7 +138,7 @@ def analytics_view(request):
         emails_sent=Count('emails', filter=Q(emails__status='sent')),
         emails_opened=Count('emails', filter=Q(emails__opened=True)),
         emails_failed=Count('emails', filter=Q(emails__status='failed')),
-    ).values('name', 'emails_sent')
+    ).values('name', 'emails_sent', 'emails_opened', 'emails_failed').order_by('-emails_sent')
 
     # Fetch recent email events
     recent_events = EmailEvent.objects.order_by('-timestamp')[:10].values(
