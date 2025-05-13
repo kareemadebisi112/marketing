@@ -143,9 +143,8 @@ def analytics_view(request):
 
     campaign_analytics = Campaign.objects.annotate(
         emails_sent=Count(
-            'email_templates__campaign_email_templates__emailobject',
-            filter=Q(email_templates__campaign_email_templates__emailobject__status='sent')
-        )
+            'emailobject', filter=Q(emailobject__status='sent')
+        ),
     ).values('name', 'emails_sent')
     
     # Pass analytics data to the template

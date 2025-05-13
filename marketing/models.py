@@ -62,6 +62,7 @@ class EmailObject(BaseModel):
     sent_at = models.DateTimeField(null=True, blank=True)
     status = models.CharField(max_length=50, choices=[('sent', 'Sent'), ('failed', 'Failed')], default='sent')
     contact = models.ForeignKey(EmailContact, on_delete=models.CASCADE, related_name='emails')
+    campaign = models.ForeignKey('Campaign', on_delete=models.CASCADE, related_name='emails', blank=True, null=True)
     opened = models.BooleanField(default=False)
 
     def __str__(self):
