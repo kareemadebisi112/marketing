@@ -134,7 +134,7 @@ def analytics_view(request):
     unsubscribe_rate = (total_unsubscribed / total_contacts * 100) if total_contacts > 0 else 0
     click_rate = (total_emails_clicked / total_emails_sent * 100) if total_emails_sent > 0 else 0
 
-    campaign_analytics = Campaign.objects.filter(active=True).annotate(
+    campaign_analytics = Campaign.objects.filter(status='active').annotate(
         emails_sent=Count('emails', filter=Q(emails__status='sent')),
         emails_opened=Count('emails', filter=Q(emails__opened=True)),
         emails_failed=Count('emails', filter=Q(emails__status='failed')),
