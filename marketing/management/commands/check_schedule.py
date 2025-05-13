@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from django.utils.timezone import now
+from django.utils.timezone import now, localtime
 from marketing.marketing.models import Schedule, EmailObject, EmailContact, CampaignEmailTemplate
 from marketing.marketing.utils import send_email
 
@@ -7,14 +7,16 @@ class Command(BaseCommand):
     help = "Check and send scheduled emails."
 
     def handle(self, *args, **kwargs):
-        current_day = now().weekday() # 0 = Monday, 6 = Sunday
-        current_hour = now().time().hour
-        current_time = f"{current_hour:02d}:00:00"
+        # Convert current time to local timezone
+        current_datetime = localtime(now())
+        current_day = current_datetime.weekday() # 0 = Monday, 6 = Sunday
+        current_hour = current_datetime.time().hour
+        formatted_time = f"{current_hour:02d}:00:00"
 
         # Find active schedules for current day and time
         schedules = Schedule.objects.filter(
             day_of_week=current_day,
-            time=current_time,
+            time=formatted_time,
             active=True
         )
 
@@ -70,4 +72,4 @@ class Command(BaseCommand):
 
         
         # Proof of life
-        self.stdout.write(self.style.SUCCESS(f"Checked schedule at {current_time}."))
+        self.stdout.write(self.style.SUCCESS(f"Checked schedule at {formatted_time}."))
