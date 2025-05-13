@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        table {
+            width: 50%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+    </style>
+</head>
+<body>
+    <h1>Analytics Dashboard</h1>
+    <table>
+        <tr>
+            <th>Metric</th>
+            <th>Value</th>
+        </tr>
+        <tr>
+            <td>Total Contacts</td>
+            <td>{{ total_contacts }}</td>
+        </tr>
+        <tr>
+            <td>Total Campaigns</td>
+            <td>{{ total_campaigns }}</td>
+        </tr>
+        <tr>
+            <td>Total Emails Sent</td>
+            <td>{{ total_emails_sent }}</td>
+        </tr>
+        <tr>
+            <td>Total Emails Opened</td>
+            <td>{{ total_emails_opened }}</td>
+        </tr>
+        <tr>
+            <td>Open Rate</td>
+            <td>{{ open_rate }}</td>
+        </tr>
+    </table>
+</body>
+</html>

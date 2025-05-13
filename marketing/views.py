@@ -1,7 +1,7 @@
 # views.py
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponse
-from .models import EmailContact, EmailEvent, EmailObject, EmailTemplate
+from .models import EmailContact, EmailEvent, EmailObject, EmailTemplate, Campaign
 from .utils import send_email, verify_mailgun_signature
 import datetime
 from django.shortcuts import render
@@ -113,20 +113,20 @@ def unsubscribe_view(request, email):
     EmailContact.objects.filter(email=email).update(subscribed=False)
     return HttpResponse("You've been unsubscribed.")
 
+def analytics_view(request):
+    # Calculate analytics
+    total_contacts = EmailContact.objects.count()
+    total_campaigns = Campaign.objects.count()
+    total_emails_sent = EmailObject.objects.filter(status='sent').count()
+    total_emails_opened = EmailObject.objects.filter(opened=True).count()
+    open_rate = (total_emails_opened / total_emails_sent * 100) if total_emails_sent > 0 else 0
 
-def send_mail_view(request):
-    for contact in EmailContact.objects.all():
-        print(contact.email, contact.ab_variant)
-        status_code, response_text,subject, html = send_email(contact)
-        if status_code != 200:
-            return JsonResponse({'status': 'failed to send email', 'response': response_text}, status=status_code)
-        else:
-            email = EmailObject(
-                subject=subject,
-                body=html,
-                contact=contact,
-                status="sent",
-                sent_at=datetime.datetime.now(),
-            )
-            email.save()
-    return JsonResponse({'status': 'emails sent successfully'})
+    # Pass analytics data to the template
+    context = {
+        'total_contacts': total_contacts,
+        'total_campaigns': total_campaigns,
+        'total_emails_sent': total_emails_sent,
+        'total_emails_opened': total_emails_opened,
+        'open_rate': f"{open_rate:.2f}%",
+    }
+    return render(request, 'analytics.html', context)
