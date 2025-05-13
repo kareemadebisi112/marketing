@@ -65,5 +65,21 @@
         </tr>
         {% endfor %}
     </table>
+
+    <h2>Recent Events</h2>
+<table>
+    <tr>
+        <th>Email</th>
+        <th>Event Type</th>
+        <th>Timestamp</th>
+    </tr>
+    {% for event in recent_events %}
+    <tr>
+        <td>{{ event.email }}</td>
+        <td>{{ event.event_type }}</td>
+        <td>{{ event.timestamp }}</td>
+    </tr>
+    {% endfor %}
+</table>
 </body>
 </html>
