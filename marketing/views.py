@@ -136,7 +136,7 @@ def analytics_view(request):
 
     # Campaign-specific analytics
     campaign_analytics = Campaign.objects.annotate(
-        emails_sent=Count('email_templates__campaign_email_templates__emailobject', filter=Q(email_templates__campaign_email_templates__emailobject__status='sent')),
+        emails_sent=Count('email_templates__emailobject', filter=Q(email_templates__emailobject__status='sent')),
         emails_opened=Count('email_templates__campaign_email_templates__emailobject', filter=Q(email_templates__campaign_email_templates__emailobject__opened=True)),
         emails_failed=Count('email_templates__campaign_email_templates__emailobject', filter=Q(email_templates__campaign_email_templates__emailobject__status='failed')),
     ).values('name', 'emails_sent', 'emails_opened', 'emails_failed')
