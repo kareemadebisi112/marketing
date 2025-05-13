@@ -135,11 +135,11 @@ def analytics_view(request):
     click_rate = (total_emails_clicked / total_emails_sent * 100) if total_emails_sent > 0 else 0
 
     # Campaign-specific analytics
-    campaign_analytics = Campaign.objects.annotate(
-        emails_sent=Count('email_templates__campaignemailtemplate__emailobject', filter=Q(email_templates__campaignemailtemplate__emailobject__status='sent')),
-        emails_opened=Count('email_templates__campaignemailtemplate__emailobject', filter=Q(email_templates__campaignemailtemplate__emailobject__opened=True)),
-        emails_failed=Count('email_templates__campaignemailtemplate__emailobject', filter=Q(email_templates__campaignemailtemplate__emailobject__status='failed')),
-    ).values('name', 'emails_sent', 'emails_opened', 'emails_failed')
+    # campaign_analytics = Campaign.objects.annotate(
+    #     emails_sent=Count('email_templates__campaignemailtemplate__emailobject', filter=Q(email_templates__campaignemailtemplate__emailobject__status='sent')),
+    #     emails_opened=Count('email_templates__campaignemailtemplate__emailobject', filter=Q(email_templates__campaignemailtemplate__emailobject__opened=True)),
+    #     emails_failed=Count('email_templates__campaignemailtemplate__emailobject', filter=Q(email_templates__campaignemailtemplate__emailobject__status='failed')),
+    # ).values('name', 'emails_sent', 'emails_opened', 'emails_failed')
     
     # Pass analytics data to the template
     context = {
@@ -155,6 +155,6 @@ def analytics_view(request):
         'bounce_rate': f"{bounce_rate:.2f}%",
         'unsubscribe_rate': f"{unsubscribe_rate:.2f}%",
         'click_rate': f"{click_rate:.2f}%",
-        'campaign_analytics': campaign_analytics,
+        # 'campaign_analytics': campaign_analytics,
     }
     return render(request, 'analytics.html', context)
