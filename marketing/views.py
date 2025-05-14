@@ -1,7 +1,7 @@
 # views.py
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponse
-from .models import EmailContact, EmailEvent, EmailObject, EmailTemplate, Campaign
+from .models import EmailContact, EmailEvent, EmailObject, EmailTemplate, Campaign, Schedule
 from .utils import send_email, verify_mailgun_signature
 import datetime
 from django.shortcuts import render
@@ -150,6 +150,18 @@ def analytics_view(request):
     recent_events = EmailEvent.objects.order_by('-timestamp')[:10].values(
         'email', 'event_type', 'timestamp', 'metadata'
     )
+
+    # Fetch the next-up schedule and its campaign
+    next_schedule = Schedule.objects.filter(active=True, next_run__gte=datetime.datetime.now()).order_by('next_run').first()
+    next_schedule_data = None
+    if next_schedule:
+        next_schedule_data = {
+            'name': next_schedule.name,
+            'day_of_week': next_schedule.get_day_of_week_display(),
+            'time': next_schedule.time,
+            'campaign': next_schedule.campaign.name,
+            'next_run': next_schedule.next_run,
+        }
     
     # Pass analytics data to the template
     context = {
@@ -168,5 +180,6 @@ def analytics_view(request):
         'active_campigns': active_campigns,
         'completed_campaigns': completed_campaigns,
         'recent_events': recent_events,
+        'next_schedule': next_schedule_data,
     }
     return render(request, 'analytics.html', context)
