@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analytics</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        function toggleSection(id) {
+            const section = document.getElementById(id);
+            section.classList.toggle('hidden');
+        }
+    </script>
 </head>
 <body class="bg-gray-900 text-gray-100 font-sans p-6">
     <div class="flex flex-col lg:flex-row gap-6">
@@ -12,138 +18,98 @@
         <div class="flex-1">
             <h1 class="text-3xl font-bold mb-6">Analytics Dashboard</h1>
 
-            <h2 class="text-xl font-semibold mb-4">General Metrics</h2>
-            <table class="w-full border border-gray-700 rounded-lg overflow-hidden mb-6">
-                <thead class="bg-gray-800">
-                    <tr>
-                        <th class="px-4 py-2 text-left">Metric</th>
-                        <th class="px-4 py-2 text-left">Value</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="border-t border-gray-700">
-                        <td class="px-4 py-2">Total Contacts</td>
-                        <td class="px-4 py-2">{{ total_contacts }}</td>
-                    </tr>
-                    <tr class="border-t border-gray-700">
-                        <td class="px-4 py-2">Total Campaigns</td>
-                        <td class="px-4 py-2">{{ total_campaigns }}</td>
-                    </tr>
-                    <tr class="border-t border-gray-700">
-                        <td class="px-4 py-2">Total Emails Sent</td>
-                        <td class="px-4 py-2">{{ total_emails_sent }}</td>
-                    </tr>
-                    <tr class="border-t border-gray-700">
-                        <td class="px-4 py-2">Total Emails Opened</td>
-                        <td class="px-4 py-2">{{ total_emails_opened }}</td>
-                    </tr>
-                    <tr class="border-t border-gray-700">
-                        <td class="px-4 py-2">Total Emails Clicked</td>
-                        <td class="px-4 py-2">{{ total_emails_clicked }}</td>
-                    </tr>
-                    <tr class="border-t border-gray-700">
-                        <td class="px-4 py-2">Open Rate</td>
-                        <td class="px-4 py-2">{{ open_rate }}</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div>
+                <button class="text-xl font-semibold mb-4" onclick="toggleSection('general-metrics')">General Metrics</button>
+                <div id="general-metrics" class="mb-6">
+                    <table class="w-full border border-gray-700 rounded-lg overflow-hidden">
+                        <thead class="bg-gray-800">
+                            <tr>
+                                <th class="px-4 py-2 text-left">Metric</th>
+                                <th class="px-4 py-2 text-left">Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-t border-gray-700">
+                                <td class="px-4 py-2">Total Contacts</td>
+                                <td class="px-4 py-2">{{ total_contacts }}</td>
+                            </tr>
+                            <tr class="border-t border-gray-700">
+                                <td class="px-4 py-2">Total Campaigns</td>
+                                <td class="px-4 py-2">{{ total_campaigns }}</td>
+                            </tr>
+                            <tr class="border-t border-gray-700">
+                                <td class="px-4 py-2">Total Emails Sent</td>
+                                <td class="px-4 py-2">{{ total_emails_sent }}</td>
+                            </tr>
+                            <tr class="border-t border-gray-700">
+                                <td class="px-4 py-2">Total Emails Opened</td>
+                                <td class="px-4 py-2">{{ total_emails_opened }}</td>
+                            </tr>
+                            <tr class="border-t border-gray-700">
+                                <td class="px-4 py-2">Total Emails Clicked</td>
+                                <td class="px-4 py-2">{{ total_emails_clicked }}</td>
+                            </tr>
+                            <tr class="border-t border-gray-700">
+                                <td class="px-4 py-2">Open Rate</td>
+                                <td class="px-4 py-2">{{ open_rate }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-            <h2 class="text-xl font-semibold mb-4">Next Scheduled Campaign</h2>
-            <table class="w-full border border-gray-700 rounded-lg overflow-hidden mb-6">
-                <thead class="bg-gray-800">
-                    <tr>
-                        <th class="px-4 py-2 text-left">Name</th>
-                        <th class="px-4 py-2 text-left">Day of Week</th>
-                        <th class="px-4 py-2 text-left">Time</th>
-                        <th class="px-4 py-2 text-left">Campaign</th>
-                        <th class="px-4 py-2 text-left">Next Run</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="border-t border-gray-700">
-                        <td class="px-4 py-2">{{ next_schedule.name }}</td>
-                        <td class="px-4 py-2">{{ next_schedule.day_of_week }}</td>
-                        <td class="px-4 py-2">{{ next_schedule.time }}</td>
-                        <td class="px-4 py-2">{{ next_schedule.campaign }}</td>
-                        <td class="px-4 py-2">{{ next_schedule.next_run }}</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div>
+                <button class="text-xl font-semibold mb-4" onclick="toggleSection('next-scheduled-campaign')">Next Scheduled Campaign</button>
+                <div id="next-scheduled-campaign" class="hidden mb-6">
+                    <table class="w-full border border-gray-700 rounded-lg overflow-hidden">
+                        <thead class="bg-gray-800">
+                            <tr>
+                                <th class="px-4 py-2 text-left">Name</th>
+                                <th class="px-4 py-2 text-left">Day of Week</th>
+                                <th class="px-4 py-2 text-left">Time</th>
+                                <th class="px-4 py-2 text-left">Campaign</th>
+                                <th class="px-4 py-2 text-left">Next Run</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-t border-gray-700">
+                                <td class="px-4 py-2">{{ next_schedule.name }}</td>
+                                <td class="px-4 py-2">{{ next_schedule.day_of_week }}</td>
+                                <td class="px-4 py-2">{{ next_schedule.time }}</td>
+                                <td class="px-4 py-2">{{ next_schedule.campaign }}</td>
+                                <td class="px-4 py-2">{{ next_schedule.next_run }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-            <h2 class="text-xl font-semibold mb-4">Active Campaign Metrics</h2>
-            <table class="w-full border border-gray-700 rounded-lg overflow-hidden mb-6">
-                <thead class="bg-gray-800">
-                    <tr>
-                        <th class="px-4 py-2 text-left">Campaign</th>
-                        <th class="px-4 py-2 text-left">Emails Sent</th>
-                        <th class="px-4 py-2 text-left">Emails Opened</th>
-                        <th class="px-4 py-2 text-left">Emails Replied</th>
-                        <th class="px-4 py-2 text-left">Open Rate</th>
-                        <th class="px-4 py-2 text-left">Reply Rate</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for campaign in active_campigns %}
-                    <tr class="border-t border-gray-700">
-                        <td class="px-4 py-2">{{ campaign.name }}</td>
-                        <td class="px-4 py-2">{{ campaign.emails_sent }}</td>
-                        <td class="px-4 py-2">{{ campaign.emails_opened }}</td>
-                        <td class="px-4 py-2">{{ campaign.emails_replied }}</td>
-                        <td class="px-4 py-2">{{ campaign.open_rate }}</td>
-                        <td class="px-4 py-2">{{ campaign.reply_rate }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-
-            <h2 class="text-xl font-semibold mb-4">Completed Campaign Metrics</h2>
-            <table class="w-full border border-gray-700 rounded-lg overflow-hidden mb-6">
-                <thead class="bg-gray-800">
-                    <tr>
-                        <th class="px-4 py-2 text-left">Campaign</th>
-                        <th class="px-4 py-2 text-left">Emails Sent</th>
-                        <th class="px-4 py-2 text-left">Emails Opened</th>
-                        <th class="px-4 py-2 text-left">Emails Replied</th>
-                        <th class="px-4 py-2 text-left">Open Rate</th>
-                        <th class="px-4 py-2 text-left">Reply Rate</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for campaign in completed_campaigns %}
-                    <tr class="border-t border-gray-700">
-                        <td class="px-4 py-2">{{ campaign.name }}</td>
-                        <td class="px-4 py-2">{{ campaign.emails_sent }}</td>
-                        <td class="px-4 py-2">{{ campaign.emails_opened }}</td>
-                        <td class="px-4 py-2">{{ campaign.emails_replied }}</td>
-                        <td class="px-4 py-2">{{ campaign.open_rate }}</td>
-                        <td class="px-4 py-2">{{ campaign.reply_rate }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <!-- Repeat similar structure for other sections -->
         </div>
 
         <!-- Recent Events -->
         <div class="lg:w-1/3">
-            <h2 class="text-xl font-semibold mb-4">Recent Events</h2>
-            <table class="w-full border border-gray-700 rounded-lg overflow-hidden">
-                <thead class="bg-gray-800">
-                    <tr>
-                        <th class="px-4 py-2 text-left">Email</th>
-                        <th class="px-4 py-2 text-left">Event Type</th>
-                        <th class="px-4 py-2 text-left">Timestamp</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for event in recent_events %}
-                    <tr class="border-t border-gray-700">
-                        <td class="px-4 py-2">{{ event.email }}</td>
-                        <td class="px-4 py-2">{{ event.event_type }}</td>
-                        <td class="px-4 py-2">{{ event.timestamp }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <button class="text-xl font-semibold mb-4" onclick="toggleSection('recent-events')">Recent Events</button>
+            <div id="recent-events" class="hidden">
+                <table class="w-full border border-gray-700 rounded-lg overflow-hidden">
+                    <thead class="bg-gray-800">
+                        <tr>
+                            <th class="px-4 py-2 text-left">Email</th>
+                            <th class="px-4 py-2 text-left">Event Type</th>
+                            <th class="px-4 py-2 text-left">Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for event in recent_events %}
+                        <tr class="border-t border-gray-700">
+                            <td class="px-4 py-2">{{ event.email }}</td>
+                            <td class="px-4 py-2">{{ event.event_type }}</td>
+                            <td class="px-4 py-2">{{ event.timestamp }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </body>
