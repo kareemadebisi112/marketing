@@ -18,9 +18,10 @@ DAYS_OF_WEEK = [
 ]
 @admin.register(EmailObject)
 class EmailObjectAdmin(admin.ModelAdmin):
-    list_display = ('subject', 'sent_at', 'status', 'contact', 'opened')
-    list_filter = ('status', 'sent_at', 'opened')
+    list_display = ('subject', 'sent_at', 'status', 'contact', 'opened', 'campaign')
+    list_filter = ('status', 'sent_at', 'opened', 'campaign', ('sent_at', admin.DateFieldListFilter))
     search_fields = ('subject', 'contact__email')
+    list_editable = ('campaign',)
 @admin.register(Campaign)
 class CampaignAdmin(admin.ModelAdmin):
     list_display = ('name', 'status', 'start_date', 'end_date', 'next_schedule_run', 'total_steps')
