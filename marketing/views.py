@@ -7,7 +7,7 @@ import datetime
 from django.shortcuts import render
 import json
 from django.template import Template, Context
-from django.db.models import Count, Q, Case, When, FloatField
+from django.db.models import Count, Q
 
         
 def index(request):
@@ -140,13 +140,8 @@ def analytics_view(request):
         emails_failed=Count('emails', filter=Q(emails__status='failed')),
         open_rate=Count('emails', filter=Q(emails__opened=True)) * 100.0 / Count('emails', filter=Q(emails__status='sent')),
         emails_replied=Count('emails', filter=Q(emails__replied=True)),
-        reply_rate=Case(
-            When(emails_sent=0, then=0),
-            When(emails_replied=0, then=0),
-            default=Count('emails', filter=Q(emails__replied=True)) * 100.0 / Count('emails', filter=Q(emails__status='sent')),
-            output_field=FloatField()
-        )
-    ).values('name', 'emails_sent', 'emails_opened', 'emails_failed', 'open_rate', 'emails_replied', 'reply_rate').order_by('-emails_sent')
+        # reply_rate=Count('emails', filter=Q(emails__replied=True)) * 100.0 / Count('emails', filter=Q(emails__status='sent'))
+    ).values('name', 'emails_sent', 'emails_opened', 'emails_failed', 'open_rate', 'emails_replied').order_by('-emails_sent')
 
     active_campigns = campaign_analytics.filter(status='active')
     completed_campaigns = campaign_analytics.filter(status='completed')
