@@ -142,6 +142,7 @@ def analytics_view(request):
         emails_replied=Count('emails', filter=Q(emails__replied=True)),
         reply_rate=Case(
             When(emails_sent=0, then=0),
+            When(emails_replied=0, then=0),
             default=Count('emails', filter=Q(emails__replied=True)) * 100.0 / Count('emails', filter=Q(emails__status='sent')),
             output_field=FloatField()
         )
