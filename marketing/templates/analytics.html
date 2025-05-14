@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        table {
+            width: 50%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+    </style>
+</head>
+<body>
+    <h1>Analytics Dashboard</h1>
+    <h2>General Metrics</h2>
+    <table>
+        <tr><th>Metric</th><th>Value</th></tr>
+        <tr><td>Total Contacts</td><td>{{ total_contacts }}</td></tr>
+        <tr><td>Total Campaigns</td><td>{{ total_campaigns }}</td></tr>
+        <tr><td>Total Emails Sent</td><td>{{ total_emails_sent }}</td></tr>
+        <tr><td>Total Emails Opened</td><td>{{ total_emails_opened }}</td></tr>
+        <!-- <tr><td>Total Emails Failed</td><td>{{ total_emails_failed }}</td></tr> -->
+        <tr><td>Total Emails Clicked</td><td>{{ total_emails_clicked }}</td></tr>
+        <!-- <tr><td>Total Unsubscribed</td><td>{{ total_unsubscribed }}</td></tr> -->
+        <!-- <tr><td>Engaged Contacts</td><td>{{ engaged_contacts }}</td></tr> -->
+        <tr><td>Open Rate</td><td>{{ open_rate }}</td></tr>
+        <!-- <tr><td>Bounce Rate</td><td>{{ bounce_rate }}</td></tr>
+        <tr><td>Unsubscribe Rate</td><td>{{ unsubscribe_rate }}</td></tr>
+        <tr><td>Click Rate</td><td>{{ click_rate }}</td></tr> -->
+    </table>
+
+    <h2>Next Scheduled Campaign</h2>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Day of Week</th>
+            <th>Time</th>
+            <th>Campaign</th>
+            <th>Next Run</th>
+        </tr>
+        <tr>
+            <td>{{ next_schedule.name }}</td>
+            <td>{{ next_schedule.day_of_week }}</td>
+            <td>{{ next_schedule.time }}</td>
+            <td>{{ next_schedule.campaign }}</td>
+            <td>{{ next_schedule.next_run }}</td>
+        </tr>
+    </table>
+
+    <h2>Active Campaign Metrics</h2>
+    <table>
+        <tr>
+            <th>Campaign</th>
+            <th>Emails Sent</th>
+            <th>Emails Opened</th>
+            <th>Emails Replied</th>
+            <th>Open Rate</th>
+            <th>Reply Rate</th>
+        </tr>
+        {% for campaign in active_campigns %}
+        <tr>
+            <td>{{ campaign.name }}</td>
+            <td>{{ campaign.emails_sent }}</td>
+            <td>{{ campaign.emails_opened }}</td>
+            <td>{{ campaign.emails_replied }}</td>
+            <td>{{ campaign.open_rate }}</td>
+            <td>{{ campaign.reply_rate }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Completed Campaign Metrics</h2>
+    <table>
+        <tr>
+            <th>Campaign</th>
+            <th>Emails Sent</th>
+            <th>Emails Opened</th>
+            <th>Emails Replied</th>
+            <th>Open Rate</th>
+            <th>Reply Rate</th>
+        </tr>
+        {% for campaign in completed_campaigns %}
+        <tr>
+            <td>{{ campaign.name }}</td>
+            <td>{{ campaign.emails_sent }}</td>
+            <td>{{ campaign.emails_opened }}</td>
+            <td>{{ campaign.emails_replied }}</td>
+            <td>{{ campaign.open_rate }}</td>
+            <td>{{ campaign.reply_rate }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Recent Events</h2>
+<table>
+    <tr>
+        <th>Email</th>
+        <th>Event Type</th>
+        <th>Timestamp</th>
+    </tr>
+    {% for event in recent_events %}
+    <tr>
+        <td>{{ event.email }}</td>
+        <td>{{ event.event_type }}</td>
+        <td>{{ event.timestamp }}</td>
+    </tr>
+    {% endfor %}
+</table>
+</body>
+</html>
