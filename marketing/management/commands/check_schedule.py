@@ -46,7 +46,7 @@ class Command(BaseCommand):
                         subject=subject,
                         body=html,
                         contact=contact,
-                        sent_at=now(),
+                        sent_at=localtime(now()),
                         status='sent'
                         )
                     self.stdout.write(self.style.SUCCESS(f"Email sent to {contact.email} with subject: {subject} on Schedule {schedule.name}."))
@@ -67,7 +67,7 @@ class Command(BaseCommand):
                     related_schedule.save()
                 schedule.active = False
 
-            schedule.last_run = now()
+            schedule.last_run = localtime(now())
             schedule.save()
 
         
