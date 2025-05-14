@@ -141,7 +141,7 @@ def analytics_view(request):
         open_rate=Count('emails', filter=Q(emails__opened=True)) * 100.0 / Count('emails', filter=Q(emails__status='sent')),
         emails_replied=Count('emails', filter=Q(emails__replied=True)),
         reply_rate=Count('emails', filter=Q(emails__replied=True)) * 100.0 / Count('emails', filter=Q(emails__status='sent'))
-    ).values('name', 'emails_sent', 'emails_opened', 'emails_failed', 'open_rate', 'replies', 'reply_rate').order_by('-emails_sent')
+    ).values('name', 'emails_sent', 'emails_opened', 'emails_failed', 'open_rate', 'emails_replied', 'reply_rate').order_by('-emails_sent')
 
     active_campigns = campaign_analytics.filter(status='active')
     completed_campaigns = campaign_analytics.filter(status='completed')
