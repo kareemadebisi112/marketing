@@ -3,6 +3,7 @@ from django.db import models
 import random
 from django.utils.text import slugify
 from django.urls import reverse
+from django.utils.timezone import now, localtime
 from django.utils import timezone
 
 
@@ -145,7 +146,7 @@ class Schedule(BaseModel):
     
     def save(self, *args, **kwargs):
         if self.active:
-            today = timezone.now()
+            today = localtime(now())
             if self.last_run:
                 self.next_run = self.last_run + timezone.timedelta(days=7)
             else:
