@@ -39,7 +39,7 @@ class Command(BaseCommand):
             for contact in contacts:
                 result = send_email(contact, campaign, campaign_email_template.template)
                 if result is None:
-                    self.stdout.write(self.style.ERROR(f"send_email returned None for contact {contact.email}."))
+                    self.stdout.write(self.style.ERROR(f"Email not sent. Contact {contact.email} is unsubscribed."))
                     continue
                 status_code, response_text, subject, html = result
                 if not status_code:
