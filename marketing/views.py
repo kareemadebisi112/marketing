@@ -156,7 +156,7 @@ def analytics_view(request):
     next_schedule_data = None
     if next_schedule:
         next_schedule_data = {
-            'name': next_schedule.name,
+            # 'name': next_schedule.name,
             'day_of_week': next_schedule.get_day_of_week_display(),
             'time': next_schedule.time,
             'campaign': next_schedule.campaign.name,
