@@ -50,7 +50,7 @@ class Command(BaseCommand):
                         status='sent',
                         campaign=campaign,
                         )
-                    self.stdout.write(self.style.SUCCESS(f"Email sent to {contact.email} with subject: {subject} on Schedule {schedule.name}."))
+                    self.stdout.write(self.style.SUCCESS(f"Email sent to {contact.email} with subject: {subject}."))
                 elif status_code:
                     self.stdout.write(self.style.ERROR(f"Failed to send email to {contact.email}: {response_text}"))
                 else:

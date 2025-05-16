@@ -61,9 +61,9 @@ class EmailTemplateAdmin(admin.ModelAdmin):
 
 @admin.register(Schedule)
 class ScheduleAdmin(admin.ModelAdmin):
-    list_display = ('name', 'day_of_week_display', 'time', 'campaign', 'active', 'last_run', 'next_run')
+    list_display = ('day_of_week_display', 'time', 'campaign', 'active', 'last_run', 'next_run')
     list_filter = ('day_of_week', 'campaign', 'active')
-    search_fields = ('name', 'campaign__name')
+    search_fields = ('campaign__name',)
     # list_editable = ('active', 'time')
     ordering = ('next_run',)
 

@@ -132,7 +132,6 @@ class Schedule(BaseModel):
         (6, 'Sunday'),
     ]
 
-    name = models.CharField(max_length=255)
     day_of_week = models.IntegerField(choices=DAYS_OF_WEEK)
     time = models.TimeField()
     campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE, related_name='schedules')
@@ -142,7 +141,7 @@ class Schedule(BaseModel):
 
     def __str__(self):
         day = dict(self.DAYS_OF_WEEK).get(self.day_of_week, 'Unknown')
-        return f"{self.name} - {day} at {self.time}"
+        return f"{day} at {self.time}"
     
     def save(self, *args, **kwargs):
         if self.active:
