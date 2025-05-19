@@ -14,6 +14,28 @@ class BaseModel(models.Model):
     class Meta:
         abstract = True
 
+class SendingProfile(models.Model):
+    name = models.CharField(max_length=255)  # The display name
+    email_name = models.CharField(max_length=255)  # The "local-part" of the email (before the @)
+    domain = models.CharField(max_length=255)  # The domain of the sender
+    active = models.BooleanField(default=True)  # Toggle for activation
+    reputation_score = models.FloatField(default=1.0)  # We can use this for throttling
+    daily_send_limit = models.IntegerField(default=20)  # Max emails per day
+    sent_today = models.IntegerField(default=0)  # Counter for today's sends
+    last_sent = models.DateTimeField(null=True, blank=True)  # Last time an email was sent
+    
+    def __str__(self):
+        return f"{self.name} <{self.email_name}@{self.domain}>"
+    
+    def can_send_email(self):
+        """Check if this profile can send another email."""
+        if self.last_sent and self.last_sent.date() != now().date():
+            # If it's a new day, reset the counter
+            self.sent_today = 0
+            self.save()
+        
+        return self.sent_today < self.daily_send_limit
+    
 class EmailContact(BaseModel):
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=255, blank=True, null=True)
@@ -24,6 +46,7 @@ class EmailContact(BaseModel):
     industry = models.CharField(max_length=255, blank=True, null=True)
     ab_variant = models.CharField(max_length=1, choices=[('A', 'A'), ('B', 'B')], blank=True, null=True)
     subscribed = models.BooleanField(default=True)
+    last_sender = models.ForeignKey('SendingProfile', null=True, blank=True, on_delete=models.SET_NULL)
     engaged = models.BooleanField(default=False)  # Indicates if the user has engaged with the email (opened/clicked)
 
     def __str__(self):

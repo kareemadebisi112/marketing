@@ -1,4 +1,4 @@
-from .models import EmailContact, EmailEvent, EmailObject, Campaign, MailingList, Schedule, CampaignEmailTemplate, EmailTemplate
+from .models import EmailContact, EmailEvent, EmailObject, Campaign, MailingList, Schedule, CampaignEmailTemplate, EmailTemplate, SendingProfile
 from django.contrib import admin
 from django.urls import path
 from django.shortcuts import render, redirect
@@ -59,6 +59,22 @@ class EmailTemplateAdmin(admin.ModelAdmin):
     list_display = ('subject_a', 'subject_b')
     search_fields = ('subject_a', 'subject_b')
 
+@admin.register(SendingProfile)
+class SendingProfileAdmin(admin.ModelAdmin):
+    list_display = (
+        'name',
+        'email_name',
+        'domain',
+        'active',
+        'reputation_score',
+        'daily_send_limit',
+        'sent_today',
+        'last_sent',
+    )
+    list_filter = ('active', 'domain')
+    search_fields = ('name', 'email_name', 'domain')
+    ordering = ('-reputation_score', 'name')
+    
 @admin.register(Schedule)
 class ScheduleAdmin(admin.ModelAdmin):
     list_display = ('day_of_week_display', 'time', 'campaign', 'active', 'last_run', 'next_run')
