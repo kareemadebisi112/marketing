@@ -1,7 +1,6 @@
 # views.py
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponse
-from .models import EmailContact, EmailEvent, EmailObject, EmailTemplate, Campaign, Schedule
 from .models import EmailContact, EmailEvent, EmailObject, EmailTemplate, Campaign, Schedule, MailingList, SendingProfile
 from .utils import send_email, verify_mailgun_signature
 import datetime
