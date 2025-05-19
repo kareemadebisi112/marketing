@@ -74,7 +74,7 @@ class Command(BaseCommand):
             
             # contacts = list(contacts)
             # random.shuffle(contacts)  # Shuffle contacts for random sending order
-
+            self.stdout.write(self.style.SUCCESS(f"Sending emails to {len(contacts)} contacts for campaign {campaign.name}."))
             self.batch_send_email(contacts, campaign, campaign_email_template.template)
 
             campaign.current_step += 1
