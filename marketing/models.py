@@ -17,6 +17,7 @@ class BaseModel(models.Model):
 class SendingProfile(models.Model):
     name = models.CharField(max_length=255)  # The display name
     email_name = models.CharField(max_length=255)  # The "local-part" of the email (before the @)
+    company_name = models.CharField(max_length=255, default="Mailgun Sandbox")  # The company name
     domain = models.CharField(max_length=255)  # The domain of the sender
     active = models.BooleanField(default=True)  # Toggle for activation
     reputation_score = models.FloatField(default=1.0)  # We can use this for throttling
