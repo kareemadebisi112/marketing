@@ -39,7 +39,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         # Convert current time to local timezone
-        current_datetime = localtime(now())
+        now = localtime(now())
+        current_datetime = now
         current_day = current_datetime.weekday() # 0 = Monday, 6 = Sunday
         current_hour = current_datetime.time().hour
         formatted_time = f"{current_hour:02d}:00:00"
@@ -55,6 +56,9 @@ class Command(BaseCommand):
         delay = 2  # Delay in seconds between batches
 
         for schedule in schedules:
+            schedule.last_run = now
+            schedule.save()
+
             campaign = schedule.campaign
             if campaign.status != 'active':
                 continue
@@ -71,7 +75,6 @@ class Command(BaseCommand):
             contacts = EmailContact.objects.filter(
                 id__in=campaign.mailing_lists.values_list('contacts', flat=True)
                 )
-            
             # contacts = list(contacts)
             # random.shuffle(contacts)  # Shuffle contacts for random sending order
             self.stdout.write(self.style.SUCCESS(f"Sending emails to {len(contacts)} contacts for campaign {campaign.name}."))
@@ -88,10 +91,6 @@ class Command(BaseCommand):
                     related_schedule.active = False
                     related_schedule.save()
                 schedule.active = False
-
-            schedule.last_run = localtime(now())
-            schedule.save()
-
         
         # Proof of life
         self.stdout.write(self.style.SUCCESS(f"Checked schedule at {formatted_time}."))
