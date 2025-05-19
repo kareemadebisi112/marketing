@@ -25,7 +25,7 @@ def send_email(contact, campaign, email_template):
                else email_template.subject_b).replace(
                    "{{ contact.company }}", contact.company or "Your Company")
 
-    context = {"contact": contact, "campaign": campaign, "sending_profile": sending_profile}
+    context = {"contact": contact, "campaign": campaign, "sender": sending_profile}
     template = Template(email_template.template)
     html = template.render(Context(context))
 
