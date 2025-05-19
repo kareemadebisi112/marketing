@@ -10,15 +10,20 @@ class Command(BaseCommand):
 
     def batch_send_email(self, contacts, campaign, template):
         for contact in contacts:
-            time.sleep(random.randint(10, 30))
-            result = send_email(contact, campaign, template)
-            if result is None:
-                self.stdout.write(self.style.ERROR(f"Email not sent. Contact {contact.email} is unsubscribed."))
-                continue
-            status_code, response_text, subject, html = result
-            if not status_code:
+            if not (contact.subscribed and template):
                 self.stdout.write(self.style.WARNING(f"Contact {contact.email} is unsubscribed."))
                 continue
+
+            time.sleep(random.randint(10, 30))
+
+            result = send_email(contact, campaign, template)
+            
+            if result is None:
+                self.stdout.write(self.style.ERROR(f"No active sending profile found."))
+                continue
+
+            status_code, response_text, subject, html = result
+
             if status_code == 200:
                 EmailObject.objects.create(
                     subject=subject,
@@ -29,10 +34,8 @@ class Command(BaseCommand):
                     campaign=campaign,
                 )
                 self.stdout.write(self.style.SUCCESS(f"Email sent to {contact.email} with subject: {subject}."))
-            elif status_code:
-                self.stdout.write(self.style.ERROR(f"Failed to send email to {contact.email}: {response_text}"))
             else:
-                self.stdout.write(self.style.SUCCESS(f"Email not sent to unsubscribed {contact.email}."))
+                self.stdout.write(self.style.SUCCESS(f"Failed to send email to {contact.email}: {response_text}."))
 
     def handle(self, *args, **kwargs):
         # Convert current time to local timezone

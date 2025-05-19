@@ -2,6 +2,7 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponse
 from .models import EmailContact, EmailEvent, EmailObject, EmailTemplate, Campaign, Schedule
+from .models import EmailContact, EmailEvent, EmailObject, EmailTemplate, Campaign, Schedule, MailingList, SendingProfile
 from .utils import send_email, verify_mailgun_signature
 import datetime
 from django.shortcuts import render
@@ -28,12 +29,13 @@ def index(request):
 def view_email_template(request, id):
     if not request.user.is_staff:
         return JsonResponse({'error': 'Unauthorized access'}, status=403)
-    
+    sender = SendingProfile.objects.filter(active=True).first()    
     contact = EmailContact.objects.filter(ab_variant='A').first()
     if contact:
         context = {
             'contact': contact,
             'variant': contact.ab_variant,
+            'sender': sender,
         }
     
     template = EmailTemplate.objects.get(id=id)

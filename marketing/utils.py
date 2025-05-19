@@ -11,13 +11,6 @@ MAILGUN_API_URL = f"https://api.mailgun.net/v3/{settings.MAILGUN_DOMAIN}/message
 MAILGUN_API_KEY = settings.MAILGUN_API_KEY
 
 def send_email(contact, campaign, email_template):
-    if not (contact.subscribed and email_template):
-        return None  # Skip if unsubscribed or no template provided
-
-    # current_step = campaign.current_step
-    # if current_step >= campaign.total_steps or campaign.status == 'completed':
-    #     return None  # No more steps to send emails for
-
     if not contact.last_sender:
         sending_profile = SendingProfile.objects.filter(active=True).order_by('?').first()
         if not sending_profile:
