@@ -2,9 +2,37 @@ from django.core.management.base import BaseCommand
 from django.utils.timezone import now, localtime
 from marketing.marketing.models import Schedule, EmailObject, EmailContact, CampaignEmailTemplate
 from marketing.marketing.utils import send_email
+import random
+import time
 
 class Command(BaseCommand):
     help = "Check and send scheduled emails."
+
+    def batch_send_email(self, contacts, campaign, template):
+        for contact in contacts:
+            time.sleep(random.randint(10, 30))
+            result = send_email(contact, campaign, template)
+            if result is None:
+                self.stdout.write(self.style.ERROR(f"Email not sent. Contact {contact.email} is unsubscribed."))
+                continue
+            status_code, response_text, subject, html = result
+            if not status_code:
+                self.stdout.write(self.style.WARNING(f"Contact {contact.email} is unsubscribed."))
+                continue
+            if status_code == 200:
+                EmailObject.objects.create(
+                    subject=subject,
+                    body=html,
+                    contact=contact,
+                    sent_at=localtime(now()),
+                    status='sent',
+                    campaign=campaign,
+                )
+                self.stdout.write(self.style.SUCCESS(f"Email sent to {contact.email} with subject: {subject}."))
+            elif status_code:
+                self.stdout.write(self.style.ERROR(f"Failed to send email to {contact.email}: {response_text}"))
+            else:
+                self.stdout.write(self.style.SUCCESS(f"Email not sent to unsubscribed {contact.email}."))
 
     def handle(self, *args, **kwargs):
         # Convert current time to local timezone
@@ -32,33 +60,19 @@ class Command(BaseCommand):
                 campaign=campaign,
                 order=campaign.current_step + 1
                 ).first()
+            
+            if not campaign_email_template:
+                self.stdout.write(self.style.ERROR(f"No email template found for campaign {campaign.name} at step {campaign.current_step + 1}."))
+                continue
+            
             contacts = EmailContact.objects.filter(
                 id__in=campaign.mailing_lists.values_list('contacts', flat=True)
                 )
+            
+            # contacts = list(contacts)
+            # random.shuffle(contacts)  # Shuffle contacts for random sending order
 
-            for contact in contacts:
-                result = send_email(contact, campaign, campaign_email_template.template)
-                if result is None:
-                    self.stdout.write(self.style.ERROR(f"Email not sent. Contact {contact.email} is unsubscribed."))
-                    continue
-                status_code, response_text, subject, html = result
-                if not status_code:
-                    self.stdout.write(self.style.WARNING(f"Contact {contact.email} is unsubscribed."))
-                    continue
-                if status_code == 200:
-                    EmailObject.objects.create(
-                        subject=subject,
-                        body=html,
-                        contact=contact,
-                        sent_at=localtime(now()),
-                        status='sent',
-                        campaign=campaign,
-                        )
-                    self.stdout.write(self.style.SUCCESS(f"Email sent to {contact.email} with subject: {subject}."))
-                elif status_code:
-                    self.stdout.write(self.style.ERROR(f"Failed to send email to {contact.email}: {response_text}"))
-                else:
-                    self.stdout.write(self.style.SUCCESS(f"Email not sent to unsubscribed {contact.email}."))
+            self.batch_send_email(contacts, campaign, campaign_email_template.template)
 
             campaign.current_step += 1
             campaign.status = 'completed' if campaign.current_step >= campaign.total_steps else campaign.status

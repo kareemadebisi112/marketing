@@ -2,6 +2,7 @@
 import requests
 from django.conf import settings
 from django.template import Template, Context
+from marketing.marketing.models import SendingProfile
 import json
 import hmac
 import hashlib
@@ -13,20 +14,30 @@ def send_email(contact, campaign, email_template):
     if not (contact.subscribed and email_template):
         return None  # Skip if unsubscribed or no template provided
 
-    current_step = campaign.current_step
-    if current_step >= campaign.total_steps or campaign.status == 'completed':
-        return None  # No more steps to send emails for
+    # current_step = campaign.current_step
+    # if current_step >= campaign.total_steps or campaign.status == 'completed':
+    #     return None  # No more steps to send emails for
+
+    if not contact.last_sender:
+        sending_profile = SendingProfile.objects.filter(active=True).order_by('?').first()
+        if not sending_profile:
+            print("No active sending profile found.")
+            return None
+        contact.last_sender = sending_profile
+        contact.save()
+    else:
+        sending_profile = contact.last_sender
 
     subject = (email_template.subject_a if contact.ab_variant == 'A' 
                else email_template.subject_b).replace(
                    "{{ contact.company }}", contact.company or "Your Company")
 
-    context = {"contact": contact, "current_step": current_step, "total_steps": campaign.total_steps}
+    context = {"contact": contact, "campaign": campaign, "sending_profile": sending_profile}
     template = Template(email_template.template)
     html = template.render(Context(context))
 
     data = {
-        "from": f"{settings.EMAIL_NAME} @ {settings.EMAIL_COMPANY} <{settings.EMAIL_NAME.lower()}@{settings.MAILGUN_DOMAIN}>",
+        "from": f"{sending_profile.name} @ {sending_profile.company_name} <{sending_profile.email_name}@{sending_profile.domain}>",
         "to": contact.email,
         "subject": subject,
         "html": html,
@@ -37,7 +48,9 @@ def send_email(contact, campaign, email_template):
         "o:tracking-opens": "yes",
     }
 
-    response = requests.post(MAILGUN_API_URL, auth=("api", MAILGUN_API_KEY), data=data)
+    url = f"https://api.mailgun.net/v3/{sending_profile.domain}/messages"
+
+    response = requests.post(url, auth=("api", MAILGUN_API_KEY), data=data)
     return response.status_code, response.text, subject, html
 
 
