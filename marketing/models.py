@@ -31,7 +31,7 @@ class SendingProfile(models.Model):
     
     def can_send_email(self):
         """Check if this profile can send another email."""
-        if self.last_sent and self.last_sent.date() != now().date():
+        if self.last_sent and self.last_sent.date() != localtime(now()).date():
             # If it's a new day, reset the counter
             self.sent_today = 0
             self.save()

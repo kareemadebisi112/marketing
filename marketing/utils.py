@@ -6,6 +6,7 @@ from marketing.marketing.models import SendingProfile
 import json
 import hmac
 import hashlib
+from django.utils.timezone import now, localtime
 
 MAILGUN_API_URL = f"https://api.mailgun.net/v3/{settings.MAILGUN_DOMAIN}/messages"
 MAILGUN_API_KEY = settings.MAILGUN_API_KEY
@@ -23,7 +24,7 @@ def send_email(contact, campaign, email_template):
     
     if sending_profile.can_send_email():
         sending_profile.sent_today += 1
-        # sending_profile.last_sent = now()
+        sending_profile.last_sent = localtime(now())
         sending_profile.save()
     subject = (email_template.subject_a if contact.ab_variant == 'A' 
                else email_template.subject_b).replace(
