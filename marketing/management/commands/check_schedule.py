@@ -39,9 +39,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         # Convert current time to local timezone
-        now = None
-        now = localtime(now())
-        current_datetime = now
+        start_now = localtime(now())
+        current_datetime = start_now
         current_day = current_datetime.weekday() # 0 = Monday, 6 = Sunday
         current_hour = current_datetime.time().hour
         formatted_time = f"{current_hour:02d}:00:00"
@@ -57,7 +56,7 @@ class Command(BaseCommand):
         delay = 2  # Delay in seconds between batches
 
         for schedule in schedules:
-            schedule.last_run = now
+            schedule.last_run = start_now
             schedule.save()
 
             campaign = schedule.campaign
