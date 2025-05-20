@@ -39,6 +39,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         # Convert current time to local timezone
+        now = None
         now = localtime(now())
         current_datetime = now
         current_day = current_datetime.weekday() # 0 = Monday, 6 = Sunday
