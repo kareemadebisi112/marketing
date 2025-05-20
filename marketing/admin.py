@@ -64,6 +64,8 @@ class SendingProfileAdmin(admin.ModelAdmin):
     list_display = (
         'name',
         'email_name',
+        'company_name',
+        'title',
         'domain',
         'active',
         'reputation_score',
@@ -72,7 +74,7 @@ class SendingProfileAdmin(admin.ModelAdmin):
         'last_sent',
     )
     list_filter = ('active', 'domain')
-    search_fields = ('name', 'email_name', 'domain')
+    search_fields = ('name', 'email_name', 'domain', 'company_name', 'title')
     ordering = ('-reputation_score', 'name')
     
 @admin.register(Schedule)

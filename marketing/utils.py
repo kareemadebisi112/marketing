@@ -20,7 +20,11 @@ def send_email(contact, campaign, email_template):
         contact.save()
     else:
         sending_profile = contact.last_sender
-
+    
+    if sending_profile.can_send_email():
+        sending_profile.sent_today += 1
+        # sending_profile.last_sent = now()
+        sending_profile.save()
     subject = (email_template.subject_a if contact.ab_variant == 'A' 
                else email_template.subject_b).replace(
                    "{{ contact.company }}", contact.company or "Your Company")
