@@ -75,6 +75,18 @@ class SendingProfileAdmin(admin.ModelAdmin):
     )
     list_filter = ('active', 'domain')
     search_fields = ('name', 'email_name', 'domain', 'company_name', 'title')
+    prepopulated_fields = {'email_name': ('name',)}
+
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        formfield = super().formfield_for_dbfield(db_field, **kwargs)
+        if db_field.name == 'email_name':
+            formfield.widget.attrs['style'] = 'text-transform: lowercase;'
+        return formfield
+
+    def save_model(self, request, obj, form, change):
+        if obj.email_name:
+            obj.email_name = obj.email_name.lower()
+        super().save_model(request, obj, form, change)
     ordering = ('-reputation_score', 'name')
     
 @admin.register(Schedule)
