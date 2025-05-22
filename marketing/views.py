@@ -36,7 +36,7 @@ def view_email_template(request, id):
             'variant': contact.ab_variant,
             'sender': sender,
         }
-    
+
     template = EmailTemplate.objects.get(id=id)
     template_content = template.template
     subject = template.subject_a if contact.ab_variant == 'A' else template.subject_b
@@ -46,6 +46,11 @@ def view_email_template(request, id):
     return HttpResponse(rendered_template)
 
 
+def analytics_demo(request):
+    if not request.user.is_staff:
+        return JsonResponse({'error': 'Unauthorized access'}, status=403)
+    
+    return render(request, 'analytics_demo.html')
 
 
 @csrf_exempt

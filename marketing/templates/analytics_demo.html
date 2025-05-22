@@ -1,0 +1,1852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Marketing Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #1a1a1a;
+            color: #e5e5e5;
+            line-height: 1.6;
+        }
+
+        .nav {
+            background-color: #2d2d2d;
+            border-bottom: 1px solid #404040;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #60a5fa;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-btn {
+            padding: 0.5rem 1rem;
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            color: white;
+            background-color: #404040;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background-color: #3b82f6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .container {
+            display: flex;
+            min-height: calc(100vh - 73px);
+        }
+
+        .sidebar {
+            width: 256px;
+            background-color: #2d2d2d;
+            padding: 1.5rem;
+        }
+
+        .sidebar h3 {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .sidebar-section {
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-btn {
+            width: 100%;
+            text-align: left;
+            padding: 0.5rem 0.75rem;
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+        }
+
+        .sidebar-btn:hover {
+            color: white;
+            background-color: #404040;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .status-online { background-color: #10b981; }
+        .status-warning { background-color: #f59e0b; }
+        .status-offline { background-color: #ef4444; }
+
+        .main-content {
+            flex: 1;
+            padding: 1.5rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: #9ca3af;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background-color: #2d2d2d;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid #404040;
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .metric-label {
+            font-size: 0.875rem;
+            color: #9ca3af;
+            margin-bottom: 0.25rem;
+        }
+
+        .metric-value {
+            font-size: 1.875rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .metric-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .metric-change {
+            margin-top: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .change-positive { color: #10b981; }
+        .change-negative { color: #ef4444; }
+        .change-neutral { color: #9ca3af; }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background-color: #2d2d2d;
+            border-radius: 0.5rem;
+            border: 1px solid #404040;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1.5rem 1.5rem 1rem;
+            border-bottom: 1px solid #404040;
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+        }
+
+        .table-container {
+            background-color: #2d2d2d;
+            border-radius: 0.5rem;
+            border: 1px solid #404040;
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #404040;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .table-controls select,
+        .table-controls input {
+            background-color: #404040;
+            border: 1px solid #525252;
+            border-radius: 0.375rem;
+            padding: 0.375rem 0.75rem;
+            color: white;
+            font-size: 0.875rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background-color: #404040;
+            padding: 0.75rem 1.5rem;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #404040;
+            font-size: 0.875rem;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .status-draft {
+            background-color: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+
+        .status-completed {
+            background-color: rgba(107, 114, 128, 0.2);
+            color: #9ca3af;
+        }
+
+        .status-opened {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .status-clicked {
+            background-color: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+        }
+
+        .status-delivered {
+            background-color: rgba(107, 114, 128, 0.2);
+            color: #9ca3af;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2563eb;
+        }
+
+        .btn-success {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #059669;
+        }
+
+        .btn-text {
+            background: none;
+            color: #60a5fa;
+            padding: 0.25rem 0.5rem;
+        }
+
+        .btn-text:hover {
+            color: #93c5fd;
+        }
+
+        .btn-text.danger {
+            color: #f87171;
+        }
+
+        .btn-text.danger:hover {
+            color: #fca5a5;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #404040;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-blue { background-color: #3b82f6; }
+        .progress-green { background-color: #10b981; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: #2d2d2d;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid #404040;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #404040;
+            border: 1px solid #525252;
+            border-radius: 0.375rem;
+            color: white;
+            font-size: 0.875rem;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                padding: 1rem;
+            }
+            
+            .nav-menu {
+                display: none;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    
+@media (max-width: 768px) {
+  .table-container table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  th, td {
+    min-width: 120px;
+  }
+
+  .sidebar {
+    display: none;
+    position: absolute;
+    top: 73px;
+    left: 0;
+    z-index: 999;
+    background-color: #2d2d2d;
+    width: 100%;
+  }
+
+  .sidebar.open {
+    display: block;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-content {
+    width: 95%;
+    padding: 1rem;
+  }
+
+  .form-actions,
+  .table-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .form-actions .btn,
+  .table-controls select,
+  .table-controls input {
+    width: 100%;
+  }
+
+  .card-content {
+    height: auto;
+    min-height: 300px;
+  }
+}
+
+
+@media (max-width: 768px) {
+  .nav-menu {
+    display: none;
+    flex-direction: column;
+    background-color: #2d2d2d;
+    padding: 1rem;
+    position: absolute;
+    top: 73px;
+    left: 0;
+    width: 100%;
+    z-index: 999;
+  }
+
+  .nav-menu.open {
+    display: flex;
+  }
+}
+
+
+@media (min-width: 769px) {
+  .nav-toggle {
+    display: none;
+  }
+}
+
+</style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-left">
+            <div class="logo">EmailCRM Admin</div>
+            <div class="nav-menu">
+                <button class="nav-btn active" onclick="showSection('dashboard')" data-section="dashboard">Dashboard</button>
+                <button class="nav-btn" onclick="showSection('campaigns')" data-section="campaigns">Campaigns</button>
+                <button class="nav-btn" onclick="showSection('contacts')" data-section="contacts">Contacts</button>
+                <button class="nav-btn" onclick="showSection('templates')" data-section="templates">Templates</button>
+                <button class="nav-btn" onclick="showSection('profiles')" data-section="profiles">Sending Profiles</button>
+            </div>
+        </div>
+        <div class="nav-right">
+            <button class="btn btn-primary nav-toggle" onclick="toggleNavMenu()">☰</button>
+            
+            <span>Admin User</span>
+            <div class="user-avatar">A</div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <h3>Quick Actions</h3>
+                <ul class="sidebar-menu">
+                    <li><button class="sidebar-btn" onclick="openModal('newCampaign')">New Campaign</button></li>
+                    <li><button class="sidebar-btn" onclick="openModal('newTemplate')">New Template</button></li>
+                    <li><button class="sidebar-btn" onclick="openModal('uploadCSV')">Upload Contacts</button></li>
+                    <li><button class="sidebar-btn" onclick="openModal('newProfile')">New Sending Profile</button></li>
+                </ul>
+            </div>
+            <div class="sidebar-section">
+                <h3>System Status</h3>
+                <div class="status-item">
+                    <span>Email Queue</span>
+                    <div style="display: flex; align-items: center;">
+                        <div class="status-indicator status-online"></div>
+                        <span style="color: #10b981; font-size: 0.875rem;">Active</span>
+                    </div>
+                </div>
+                <div class="status-item">
+                    <span>Mail Server</span>
+                    <div style="display: flex; align-items: center;">
+                        <div class="status-indicator status-online"></div>
+                        <span style="color: #10b981; font-size: 0.875rem;">Online</span>
+                    </div>
+                </div>
+                <div class="status-item">
+                    <span>Database</span>
+                    <div style="display: flex; align-items: center;">
+                        <div class="status-indicator status-warning"></div>
+                        <span style="color: #f59e0b; font-size: 0.875rem;">Moderate Load</span>
+                    </div>
+                </div>
+                <div class="status-item">
+                    <span>API Status</span>
+                    <div style="display: flex; align-items: center;">
+                        <div class="status-indicator status-online"></div>
+                        <span style="color: #10b981; font-size: 0.875rem;">Operational</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Section -->
+            <div id="dashboard" class="section active">
+                <div class="page-header">
+                    <h2 class="page-title">Analytics Dashboard</h2>
+                    <p class="page-subtitle">Overview of your email marketing performance</p>
+                </div>
+
+                <!-- Key Metrics -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div>
+                                <div class="metric-label">Total Contacts</div>
+                                <div class="metric-value">1,247</div>
+                            </div>
+                            <div class="metric-icon" style="background-color: rgba(59, 130, 246, 0.2);">
+                                <svg width="24" height="24" fill="none" stroke="#60a5fa" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM9 9a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="metric-change">
+                            <span class="change-positive">+12.5%</span>
+                            <span class="change-neutral">from last month</span>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div>
+                                <div class="metric-label">Emails Sent</div>
+                                <div class="metric-value">8,923</div>
+                            </div>
+                            <div class="metric-icon" style="background-color: rgba(16, 185, 129, 0.2);">
+                                <svg width="24" height="24" fill="none" stroke="#10b981" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="metric-change">
+                            <span class="change-positive">+8.2%</span>
+                            <span class="change-neutral">from last week</span>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div>
+                                <div class="metric-label">Open Rate</div>
+                                <div class="metric-value">24.8%</div>
+                            </div>
+                            <div class="metric-icon" style="background-color: rgba(245, 158, 11, 0.2);">
+                                <svg width="24" height="24" fill="none" stroke="#f59e0b" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="metric-change">
+                            <span class="change-negative">-2.1%</span>
+                            <span class="change-neutral">from last week</span>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div>
+                                <div class="metric-label">Active Campaigns</div>
+                                <div class="metric-value">7</div>
+                            </div>
+                            <div class="metric-icon" style="background-color: rgba(139, 92, 246, 0.2);">
+                                <svg width="24" height="24" fill="none" stroke="#8b5cf6" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="metric-change">
+                            <span class="change-neutral">2 ending this week</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div style="margin-bottom: 2rem;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Email Opens Over Time</h3>
+                            <div style="display: flex; gap: 1rem;">
+                                <select id="chartTimeRange" style="background-color: #404040; border: 1px solid #525252; border-radius: 0.375rem; padding: 0.375rem 0.75rem; color: white; font-size: 0.875rem;">
+                                    <option value="24h">Last 24 Hours</option>
+                                    <option value="7d">Last 7 Days</option>
+                                    <option value="30d">Last 30 Days</option>
+                                </select>
+                                
+<select id="chartMetric" style="background-color: #404040; border: 1px solid #525252; border-radius: 0.375rem; padding: 0.375rem 0.75rem; color: white; font-size: 0.875rem;">
+    <option value="opens">Opens</option>
+    <option value="replies">Replies</option>
+    <option value="unsubscribes">Unsubscribes</option>
+</select>
+
+                                <select id="chartCampaign" style="background-color: #404040; border: 1px solid #525252; border-radius: 0.375rem; padding: 0.375rem 0.75rem; color: white; font-size: 0.875rem;">
+                                    <option value="all">All Campaigns</option>
+                                    <option value="holiday">Holiday Sale 2025</option>
+                                    <option value="product">Product Launch</option>
+                                    <option value="newsletter">Weekly Newsletter</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card-content" style="height: 400px; position: relative;">
+                            <canvas id="opensChart" style="width: 100%; height: 100%;"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content Grid -->
+                <div class="content-grid">
+                    <!-- Next Scheduled Campaign -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Next Scheduled Campaign</h3>
+                        </div>
+                        <div class="card-content">
+                            <div style="margin-bottom: 0.75rem; display: flex; justify-content: space-between;">
+                                <span style="color: #9ca3af;">Campaign:</span>
+                                <span>Holiday Sale 2025</span>
+                            </div>
+                            <div style="margin-bottom: 0.75rem; display: flex; justify-content: space-between;">
+                                <span style="color: #9ca3af;">Day:</span>
+                                <span>Monday</span>
+                            </div>
+                            <div style="margin-bottom: 0.75rem; display: flex; justify-content: space-between;">
+                                <span style="color: #9ca3af;">Time:</span>
+                                <span>09:00 AM</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: #9ca3af;">Next Run:</span>
+                                <span style="color: #10b981;">May 26, 2025</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- A/B Test Results -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">A/B Test Performance</h3>
+                        </div>
+                        <div class="card-content">
+                            <div style="margin-bottom: 1rem;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <span style="color: #9ca3af;">Variant A</span>
+                                    <span>26.3%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill progress-blue" style="width: 26.3%"></div>
+                                </div>
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <span style="color: #9ca3af;">Variant B</span>
+                                    <span>23.1%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill progress-green" style="width: 23.1%"></div>
+                                </div>
+                            </div>
+                            <p style="color: #9ca3af; font-size: 0.875rem;">Variant A performing 3.2% better</p>
+                        </div>
+                    </div>
+
+                    <!-- System Health -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">System Health</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="status-item">
+                                <span>Email Queue</span>
+                                <div style="display: flex; align-items: center;">
+                                    <div class="status-indicator status-online"></div>
+                                    <span style="color: #10b981; font-size: 0.875rem;">Healthy</span>
+                                </div>
+                            </div>
+                            <div class="status-item">
+                                <span>Mail Server</span>
+                                <div style="display: flex; align-items: center;">
+                                    <div class="status-indicator status-online"></div>
+                                    <span style="color: #10b981; font-size: 0.875rem;">Online</span>
+                                </div>
+                            </div>
+                            <div class="status-item">
+                                <span>Database</span>
+                                <div style="display: flex; align-items: center;">
+                                    <div class="status-indicator status-warning"></div>
+                                    <span style="color: #f59e0b; font-size: 0.875rem;">Moderate Load</span>
+                                </div>
+                            </div>
+                            <div class="status-item" style="margin-bottom: 0;">
+                                <span>API Status</span>
+                                <div style="display: flex; align-items: center;">
+                                    <div class="status-indicator status-online"></div>
+                                    <span style="color: #10b981; font-size: 0.875rem;">Operational</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Events Table -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>Recent Email Events</h3>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>Event Type</th>
+                                <th>Campaign</th>
+                                <th>Timestamp</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>john.doe@example.com</td>
+                                <td><span class="status-badge status-opened">Opened</span></td>
+                                <td>Holiday Sale 2025</td>
+                                <td>2 minutes ago</td>
+                            </tr>
+                            <tr>
+                                <td>sarah.smith@company.com</td>
+                                <td><span class="status-badge status-clicked">Clicked</span></td>
+                                <td>Product Launch</td>
+                                <td>5 minutes ago</td>
+                            </tr>
+                            <tr>
+                                <td>mike.jones@startup.io</td>
+                                <td><span class="status-badge status-delivered">Delivered</span></td>
+                                <td>Weekly Newsletter</td>
+                                <td>8 minutes ago</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Campaigns Section -->
+            <div id="campaigns" class="section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <div class="page-header">
+                        <h2 class="page-title">Campaigns</h2>
+                        <p class="page-subtitle">Manage your email campaigns</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openModal('newCampaign')">+ New Campaign</button>
+                </div>
+
+                <!-- Campaign Stats -->
+                <div class="metrics-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                    <div class="metric-card">
+                        <div class="metric-label">Active Campaigns</div>
+                        <div class="metric-value">7</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Completed This Month</div>
+                        <div class="metric-value">23</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Average Open Rate</div>
+                        <div class="metric-value">24.8%</div>
+                    </div>
+                </div>
+
+                <!-- Campaigns Table -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>All Campaigns</h3>
+                        <div class="table-controls">
+                            <select>
+                                <option>All Status</option>
+                                <option>Active</option>
+                                <option>Draft</option>
+                                <option>Completed</option>
+                            </select>
+                            <input type="search" placeholder="Search campaigns...">
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Campaign Name</th>
+                                <th>Status</th>
+                                <th>Emails Sent</th>
+                                <th>Open Rate</th>
+                                <th>Next Run</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="font-weight: 600;">Holiday Sale 2025</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>1,247</td>
+                                <td>26.3%</td>
+                                <td>May 26, 2025</td>
+                                <td>
+                                    <button class="btn-text">Edit</button>
+                                    <button class="btn-text danger">Pause</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 600;">Product Launch Sequence</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>892</td>
+                                <td>23.1%</td>
+                                <td>May 28, 2025</td>
+                                <td>
+                                    <button class="btn-text">Edit</button>
+                                    <button class="btn-text danger">Pause</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 600;">Weekly Newsletter</td>
+                                <td><span class="status-badge status-draft">Draft</span></td>
+                                <td>0</td>
+                                <td>-</td>
+                                <td>Not scheduled</td>
+                                <td>
+                                    <button class="btn-text">Edit</button>
+                                    <button class="btn-text" style="color: #10b981;">Activate</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Contacts Section -->
+            <div id="contacts" class="section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <div class="page-header">
+                        <h2 class="page-title">Contacts</h2>
+                        <p class="page-subtitle">Manage your email contact database</p>
+                    </div>
+                    <div style="display: flex; gap: 0.75rem;">
+                        <button class="btn btn-success" onclick="openModal('uploadCSV')">Upload CSV</button>
+                        <button class="btn btn-primary">+ Add Contact</button>
+                    </div>
+                </div>
+
+                <!-- Contact Stats -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">Total Contacts</div>
+                        <div class="metric-value">1,247</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Subscribed</div>
+                        <div class="metric-value">1,156</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Engaged</div>
+                        <div class="metric-value">423</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Unsubscribed</div>
+                        <div class="metric-value">91</div>
+                    </div>
+                </div>
+
+                <!-- Contacts Table -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>All Contacts</h3>
+                        <div class="table-controls">
+                            <select>
+                                <option>All Status</option>
+                                <option>Subscribed</option>
+                                <option>Unsubscribed</option>
+                                <option>Engaged</option>
+                            </select>
+                            <select>
+                                <option>All Industries</option>
+                                <option>Technology</option>
+                                <option>Healthcare</option>
+                                <option>Finance</option>
+                            </select>
+                            <input type="search" placeholder="Search contacts...">
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>Name</th>
+                                <th>Company</th>
+                                <th>Industry</th>
+                                <th>A/B Variant</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>john.doe@example.com</td>
+                                <td>John Doe</td>
+                                <td>Example Corp</td>
+                                <td>Technology</td>
+                                <td>A</td>
+                                <td><span class="status-badge status-active">Subscribed</span></td>
+                                <td>
+                                    <button class="btn-text">Edit</button>
+                                    <button class="btn-text danger">Unsubscribe</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>sarah.smith@company.com</td>
+                                <td>Sarah Smith</td>
+                                <td>Smith Industries</td>
+                                <td>Healthcare</td>
+                                <td>B</td>
+                                <td><span class="status-badge status-active">Subscribed</span></td>
+                                <td>
+                                    <button class="btn-text">Edit</button>
+                                    <button class="btn-text danger">Unsubscribe</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>mike.jones@startup.io</td>
+                                <td>Mike Jones</td>
+                                <td>Startup.io</td>
+                                <td>Technology</td>
+                                <td>A</td>
+                                <td><span class="status-badge status-opened">Engaged</span></td>
+                                <td>
+                                    <button class="btn-text">Edit</button>
+                                    <button class="btn-text danger">Unsubscribe</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Templates Section -->
+            <div id="templates" class="section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <div class="page-header">
+                        <h2 class="page-title">Email Templates</h2>
+                        <p class="page-subtitle">Manage your email templates for campaigns</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openModal('newTemplate')">+ New Template</button>
+                </div>
+
+                <!-- Templates Grid -->
+                <div class="content-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Holiday Sale Template</h3>
+                        </div>
+                        <div class="card-content">
+                            <div style="margin-bottom: 1rem;">
+                                <strong>Subject A:</strong> 🎉 Exclusive Holiday Sale - 50% Off Everything!
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <strong>Subject B:</strong> Limited Time: Half Price Holiday Deals
+                            </div>
+                            <div style="margin-bottom: 1rem; color: #9ca3af; font-size: 0.875rem;">
+                                Used in 3 campaigns • Created 2 weeks ago
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn-text">Edit</button>
+                                <button class="btn-text">Preview</button>
+                                <button class="btn-text danger">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Product Launch Template</h3>
+                        </div>
+                        <div class="card-content">
+                            <div style="margin-bottom: 1rem;">
+                                <strong>Subject A:</strong> Introducing Our Revolutionary New Product
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <strong>Subject B:</strong> The Future is Here - Meet Our Latest Innovation
+                            </div>
+                            <div style="margin-bottom: 1rem; color: #9ca3af; font-size: 0.875rem;">
+                                Used in 1 campaign • Created 1 month ago
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn-text">Edit</button>
+                                <button class="btn-text">Preview</button>
+                                <button class="btn-text danger">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Newsletter Template</h3>
+                        </div>
+                        <div class="card-content">
+                            <div style="margin-bottom: 1rem;">
+                                <strong>Subject A:</strong> Weekly Update: Industry News & Insights
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <strong>Subject B:</strong> This Week in Tech: Latest Trends & Updates
+                            </div>
+                            <div style="margin-bottom: 1rem; color: #9ca3af; font-size: 0.875rem;">
+                                Used in 12 campaigns • Created 3 months ago
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn-text">Edit</button>
+                                <button class="btn-text">Preview</button>
+                                <button class="btn-text danger">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sending Profiles Section -->
+            <div id="profiles" class="section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <div class="page-header">
+                        <h2 class="page-title">Sending Profiles</h2>
+                        <p class="page-subtitle">Manage your email sending profiles and reputation</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openModal('newProfile')">+ New Profile</button>
+                </div>
+
+                <!-- Sending Profiles Table -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>All Sending Profiles</h3>
+                        <div class="table-controls">
+                            <select>
+                                <option>All Domains</option>
+                                <option>mailgun.org</option>
+                                <option>company.com</option>
+                            </select>
+                            <input type="search" placeholder="Search profiles...">
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Company</th>
+                                <th>Domain</th>
+                                <th>Reputation</th>
+                                <th>Daily Limit</th>
+                                <th>Sent Today</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="font-weight: 600;">Marketing Team</td>
+                                <td>marketing@company.com</td>
+                                <td>Company Inc</td>
+                                <td>company.com</td>
+                                <td>
+                                    <div style="display: flex; align-items: center;">
+                                        <span style="margin-right: 0.5rem;">4.8</span>
+                                        <div style="color: #10b981;">★★★★★</div>
+                                    </div>
+                                </td>
+                                <td>1000</td>
+                                <td>247</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>
+                                    <button class="btn-text">Edit</button>
+                                    <button class="btn-text danger">Pause</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 600;">Sales Team</td>
+                                <td>sales@company.com</td>
+                                <td>Company Inc</td>
+                                <td>company.com</td>
+                                <td>
+                                    <div style="display: flex; align-items: center;">
+                                        <span style="margin-right: 0.5rem;">4.2</span>
+                                        <div style="color: #f59e0b;">★★★★☆</div>
+                                    </div>
+                                </td>
+                                <td>500</td>
+                                <td>89</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>
+                                    <button class="btn-text">Edit</button>
+                                    <button class="btn-text danger">Pause</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 600;">Support Team</td>
+                                <td>support@company.com</td>
+                                <td>Company Inc</td>
+                                <td>company.com</td>
+                                <td>
+                                    <div style="display: flex; align-items: center;">
+                                        <span style="margin-right: 0.5rem;">4.9</span>
+                                        <div style="color: #10b981;">★★★★★</div>
+                                    </div>
+                                </td>
+                                <td>200</td>
+                                <td>12</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>
+                                    <button class="btn-text">Edit</button>
+                                    <button class="btn-text danger">Pause</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- New Campaign Modal -->
+    <div id="newCampaign" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Create New Campaign</h3>
+                <button class="close-btn" onclick="closeModal('newCampaign')">&times;</button>
+            </div>
+            <form>
+                <div class="form-group">
+                    <label class="form-label">Campaign Name</label>
+                    <input type="text" class="form-input" placeholder="Enter campaign name">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-textarea" placeholder="Enter campaign description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Status</label>
+                    <select class="form-select">
+                        <option>Draft</option>
+                        <option>Active</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Start Date</label>
+                    <input type="datetime-local" class="form-input">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn" onclick="closeModal('newCampaign')" style="background-color: #6b7280; color: white;">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Campaign</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- New Template Modal -->
+    <div id="newTemplate" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Create New Template</h3>
+                <button class="close-btn" onclick="closeModal('newTemplate')">&times;</button>
+            </div>
+            <form>
+                <div class="form-group">
+                    <label class="form-label">Subject Line A</label>
+                    <input type="text" class="form-input" placeholder="Enter subject line for variant A">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Subject Line B</label>
+                    <input type="text" class="form-input" placeholder="Enter subject line for variant B">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email Template</label>
+                    <textarea class="form-textarea" style="min-height: 200px;" placeholder="Enter your email template HTML/text"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn" onclick="closeModal('newTemplate')" style="background-color: #6b7280; color: white;">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Template</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Upload CSV Modal -->
+    <div id="uploadCSV" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Upload Contacts CSV</h3>
+                <button class="close-btn" onclick="closeModal('uploadCSV')">&times;</button>
+            </div>
+            <form>
+                <div class="form-group">
+                    <label class="form-label">CSV File</label>
+                    <input type="file" class="form-input" accept=".csv">
+                </div>
+                <div style="background-color: #404040; padding: 1rem; border-radius: 0.375rem; margin-bottom: 1rem;">
+                    <h4 style="margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 600;">Expected CSV Format:</h4>
+                    <code style="font-size: 0.75rem; color: #9ca3af;">
+                        first_name, last_name, title, company, email, corporate_phone, industry, mailing_list
+                    </code>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn" onclick="closeModal('uploadCSV')" style="background-color: #6b7280; color: white;">Cancel</button>
+                    <button type="submit" class="btn btn-success">Upload CSV</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- New Profile Modal -->
+    <div id="newProfile" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Create New Sending Profile</h3>
+                <button class="close-btn" onclick="closeModal('newProfile')">&times;</button>
+            </div>
+            <form>
+                <div class="form-group">
+                    <label class="form-label">Display Name</label>
+                    <input type="text" class="form-input" placeholder="Enter display name">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email Local Part</label>
+                    <input type="text" class="form-input" placeholder="Enter email prefix (before @)">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Company Name</label>
+                    <input type="text" class="form-input" placeholder="Enter company name">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Title</label>
+                    <input type="text" class="form-input" placeholder="Enter sender title">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Domain</label>
+                    <input type="text" class="form-input" placeholder="Enter domain (e.g., company.com)">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Daily Send Limit</label>
+                    <input type="number" class="form-input" placeholder="Enter daily email limit" value="100">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn" onclick="closeModal('newProfile')" style="background-color: #6b7280; color: white;">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Wait for Chart.js to load before initializing
+        window.addEventListener('load', function() {
+            initializeApp();
+window.toggleNavMenu = function () {
+    const menu = document.querySelector('.nav-menu');
+    menu.classList.toggle('open');
+};
+
+window.toggleSidebar = function () {
+    const sidebar = document.querySelector('.sidebar');
+    sidebar.classList.toggle('open');
+};
+
+        });
+
+        function initializeApp() {
+            // Chart functionality
+            let opensChart = null;
+
+            // Generate realistic dummy data for email opens over time
+            function generateDummyData() {
+                const now = new Date();
+                
+                // 24 hour data - hourly intervals
+                const hours24 = [];
+                const opens24All = [];
+                const opens24Holiday = [];
+                const opens24Product = [];
+                const opens24Newsletter = [];
+                
+                for (let i = 23; i >= 0; i--) {
+                    const hour = new Date(now.getTime() - (i * 60 * 60 * 1000));
+                    hours24.push(hour.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }));
+                    
+                    // Simulate realistic email open patterns (higher during business hours)
+                    const hourOfDay = hour.getHours();
+                    let baseOpens = 5;
+                    if (hourOfDay >= 8 && hourOfDay <= 17) baseOpens = 25; // Business hours
+                    if (hourOfDay >= 19 && hourOfDay <= 21) baseOpens = 15; // Evening peak
+                    
+                    opens24All.push(Math.floor(baseOpens + Math.random() * 20));
+                    opens24Holiday.push(Math.floor((baseOpens * 0.6) + Math.random() * 15));
+                    opens24Product.push(Math.floor((baseOpens * 0.4) + Math.random() * 10));
+                    opens24Newsletter.push(Math.floor((baseOpens * 0.3) + Math.random() * 8));
+                }
+                
+                // 7 day data - daily intervals
+                const days7 = [];
+                const opens7All = [];
+                const opens7Holiday = [];
+                const opens7Product = [];
+                const opens7Newsletter = [];
+                
+                const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                
+                for (let i = 6; i >= 0; i--) {
+                    const day = new Date(now.getTime() - (i * 24 * 60 * 60 * 1000));
+                    const dayName = dayNames[day.getDay()];
+                    days7.push(dayName.substring(0, 3));
+                    
+                    // Weekdays have more opens than weekends
+                    const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+                    let baseOpens = isWeekend ? 80 : 250;
+                    
+                    opens7All.push(Math.floor(baseOpens + Math.random() * 100));
+                    opens7Holiday.push(Math.floor((baseOpens * 0.5) + Math.random() * 60));
+                    opens7Product.push(Math.floor((baseOpens * 0.3) + Math.random() * 40));
+                    opens7Newsletter.push(Math.floor((baseOpens * 0.2) + Math.random() * 30));
+                }
+                
+                // 30 day data - weekly intervals
+                const weeks4 = [];
+                const opens30All = [];
+                const opens30Holiday = [];
+                const opens30Product = [];
+                const opens30Newsletter = [];
+                
+                for (let i = 3; i >= 0; i--) {
+                    const weekStart = new Date(now.getTime() - (i * 7 * 24 * 60 * 60 * 1000));
+                    weeks4.push(`Week ${4 - i}`);
+                    
+                    const baseOpens = 1500 + Math.random() * 800;
+                    opens30All.push(Math.floor(baseOpens));
+                    opens30Holiday.push(Math.floor(baseOpens * 0.45 + Math.random() * 200));
+                    opens30Product.push(Math.floor(baseOpens * 0.35 + Math.random() * 150));
+                    opens30Newsletter.push(Math.floor(baseOpens * 0.20 + Math.random() * 100));
+                }
+                
+                
+                const replies24 = opens24All.map(val => Math.floor(val * 0.1));
+                const unsubscribes24 = opens24All.map(val => Math.floor(val * 0.05));
+                const replies7 = opens7All.map(val => Math.floor(val * 0.1));
+                const unsubscribes7 = opens7All.map(val => Math.floor(val * 0.05));
+                const replies30 = opens30All.map(val => Math.floor(val * 0.1));
+                const unsubscribes30 = opens30All.map(val => Math.floor(val * 0.05));
+return {
+                    '24h': {
+                        all: { labels: hours24, data: opens24All },
+                        holiday: { labels: hours24, data: opens24Holiday },
+                        product: { labels: hours24, data: opens24Product },
+                        newsletter: { labels: hours24, data: opens24Newsletter }
+                    },
+                    '7d': {
+                        all: { labels: days7, data: opens7All },
+                        holiday: { labels: days7, data: opens7Holiday },
+                        product: { labels: days7, data: opens7Product },
+                        newsletter: { labels: days7, data: opens7Newsletter }
+                    },
+                    '30d': {
+                        all: { labels: weeks4, data: opens30All },
+                        holiday: { labels: weeks4, data: opens30Holiday },
+                        product: { labels: weeks4, data: opens30Product },
+                        newsletter: { labels: weeks4, data: opens30Newsletter }
+                    }
+                };
+            }
+
+            // Generate dummy data on page load
+            const chartData = generateDummyData();
+
+            function initChart() {
+                const canvas = document.getElementById('opensChart');
+                if (!canvas) return;
+                
+                const ctx = canvas.getContext('2d');
+                const timeRange = document.getElementById('chartTimeRange').value;
+                const campaign = document.getElementById('chartCampaign').value;
+                
+                
+const metric = document.getElementById('chartMetric').value;
+let data = chartData[timeRange][campaign];
+let label = 'Email Opens';
+let color = '#60a5fa';
+let fill = 'rgba(96, 165, 250, 0.1)';
+
+if (metric === 'replies') {
+    data = { labels: data.labels, data: data.data.map(v => Math.floor(v * 0.1)) };
+    label = 'Replies';
+    color = '#10b981';
+    fill = 'rgba(16, 185, 129, 0.1)';
+} else if (metric === 'unsubscribes') {
+    data = { labels: data.labels, data: data.data.map(v => Math.floor(v * 0.05)) };
+    label = 'Unsubscribes';
+    color = '#ef4444';
+    fill = 'rgba(239, 68, 68, 0.1)';
+}
+
+                
+                if (opensChart) {
+                    opensChart.destroy();
+                }
+
+                opensChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Email Opens',
+                            data: data.data,
+                            borderColor: '#60a5fa',
+                            backgroundColor: 'rgba(96, 165, 250, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#60a5fa',
+                            pointBorderColor: '#1e40af',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(45, 45, 45, 0.95)',
+                                titleColor: '#e5e5e5',
+                                bodyColor: '#e5e5e5',
+                                borderColor: '#60a5fa',
+                                borderWidth: 1,
+                                cornerRadius: 8,
+                                displayColors: false,
+                                callbacks: {
+                                    title: function(context) {
+                                        return `Time: ${context[0].label}`;
+                                    },
+                                    label: function(context) {
+                                        return `Opens: ${context.parsed.y}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: {
+                                    color: '#404040',
+                                    borderColor: '#525252'
+                                },
+                                ticks: {
+                                    color: '#9ca3af',
+                                    font: {
+                                        size: 12
+                                    }
+                                }
+                            },
+                            y: {
+                                grid: {
+                                    color: '#404040',
+                                    borderColor: '#525252'
+                                },
+                                ticks: {
+                                    color: '#9ca3af',
+                                    font: {
+                                        size: 12
+                                    },
+                                    beginAtZero: true
+                                }
+                            }
+                        },
+                        interaction: {
+                            intersect: false,
+                            mode: 'index'
+                        },
+                        elements: {
+                            line: {
+                                borderJoinStyle: 'round'
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Chart event listeners
+            const timeRangeSelect = document.getElementById('chartTimeRange');
+            const campaignSelect = document.getElementById('chartCampaign');
+            
+            if (timeRangeSelect) {
+                timeRangeSelect.addEventListener('change', initChart);
+            }
+            
+const chartMetricSelect = document.getElementById('chartMetric');
+
+if (chartMetricSelect) {
+    chartMetricSelect.addEventListener('change', initChart);
+}
+if (campaignSelect) {
+                campaignSelect.addEventListener('change', initChart);
+            }
+
+            // Navigation functionality
+            window.showSection = function(sectionId) {
+                // Hide all sections
+                const sections = document.querySelectorAll('.section');
+                sections.forEach(section => {
+                    section.classList.remove('active');
+                });
+
+                // Show selected section
+                const targetSection = document.getElementById(sectionId);
+                if (targetSection) {
+                    targetSection.classList.add('active');
+                }
+
+                // Update navigation buttons
+                const navButtons = document.querySelectorAll('.nav-btn');
+                navButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                });
+
+                const activeButton = document.querySelector(`[data-section="${sectionId}"]`);
+                if (activeButton) {
+                    activeButton.classList.add('active');
+                }
+
+                // Initialize chart when dashboard is shown
+                if (sectionId === 'dashboard') {
+                    setTimeout(initChart, 100);
+                }
+            };
+
+            // Modal functionality
+            window.openModal = function(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.add('active');
+                }
+            };
+
+            window.closeModal = function(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.remove('active');
+                }
+            };
+
+            // Close modal when clicking outside
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('modal')) {
+                    e.target.classList.remove('active');
+                }
+            });
+
+            // Close modal with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const activeModal = document.querySelector('.modal.active');
+                    if (activeModal) {
+                        activeModal.classList.remove('active');
+                    }
+                }
+            });
+
+            // Initialize dashboard as default
+            showSection('dashboard');
+            // Initialize chart after a short delay to ensure DOM is ready
+            setTimeout(initChart, 300);
+
+            // Form submission handlers (prevent default for demo)
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    alert('Form submitted! (This is just a demo)');
+                    // Find the modal containing this form and close it
+                    const modal = form.closest('.modal');
+                    if (modal) {
+                        modal.classList.remove('active');
+                    }
+                });
+            });
+
+            // Search functionality
+            document.querySelectorAll('input[type="search"]').forEach(input => {
+                input.addEventListener('input', function(e) {
+                    console.log('Searching for:', e.target.value);
+                    // Add your search logic here
+                });
+            });
+
+            // Filter functionality
+            document.querySelectorAll('select').forEach(select => {
+                select.addEventListener('change', function(e) {
+                    console.log('Filter changed:', e.target.value);
+                    // Add your filter logic here
+                });
+            });
+
+            // Table row actions
+            document.querySelectorAll('.btn-text').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const action = this.textContent.trim();
+                    console.log('Action clicked:', action);
+                    
+                    if (action === 'Edit') {
+                        alert('Edit functionality would open here');
+                    } else if (action === 'Delete') {
+                        if (confirm('Are you sure you want to delete this item?')) {
+                            alert('Item deleted (demo)');
+                        }
+                    } else if (action === 'Pause' || action === 'Activate') {
+                        alert(`${action} functionality executed (demo)`);
+                    }
+                });
+            });
+
+            // Update metrics with dynamic data
+            function updateMetrics() {
+                // Generate realistic varying metrics
+                const baseContacts = 1247;
+                const baseEmailsSent = 8923;
+                const baseOpenRate = 24.8;
+                const baseCampaigns = 7;
+                
+                // Add some random variation to simulate real-time updates
+                const contactsVariation = Math.floor(Math.random() * 20) - 10;
+                const emailsVariation = Math.floor(Math.random() * 100) - 50;
+                const openRateVariation = (Math.random() * 2) - 1;
+                
+                // Update metric displays
+                const metricsElements = document.querySelectorAll('.metric-value');
+                if (metricsElements.length >= 4) {
+                    metricsElements[0].textContent = (baseContacts + contactsVariation).toLocaleString();
+                    metricsElements[1].textContent = (baseEmailsSent + emailsVariation).toLocaleString();
+                    metricsElements[2].textContent = (baseOpenRate + openRateVariation).toFixed(1) + '%';
+                    metricsElements[3].textContent = baseCampaigns;
+                }
+                
+                // Add a subtle animation to show data is "live"
+                metricsElements.forEach(metric => {
+                    metric.style.opacity = '0.7';
+                    setTimeout(() => {
+                        metric.style.opacity = '1';
+                    }, 200);
+                });
+            }
+
+            // Simulate real-time chart updates
+            function updateChartData() {
+                if (!opensChart) return;
+                
+                const timeRange = document.getElementById('chartTimeRange').value;
+                const campaign = document.getElementById('chartCampaign').value;
+                
+                // Add slight random variations to simulate new data coming in
+                const currentData = [...chartData[timeRange][campaign].data];
+                
+                // For 24h view, simulate new opens coming in for the current hour
+                if (timeRange === '24h') {
+                    const lastIndex = currentData.length - 1;
+                    if (Math.random() > 0.7) { // 30% chance of new opens
+                        currentData[lastIndex] += Math.floor(Math.random() * 5) + 1;
+                    }
+                }
+                
+                // Update the chart
+                opensChart.data.datasets[0].data = currentData;
+                opensChart.update('none'); // Update without animation for smoother real-time feel
+            }
+
+            // Update metrics and chart data every 10 seconds to simulate real-time updates
+            setInterval(() => {
+                updateMetrics();
+                updateChartData();
+            }, 10000);
+
+            // Also update chart data every 3 seconds for more frequent updates
+            setInterval(updateChartData, 3000);
+
+            console.log('Email Marketing Admin Panel loaded successfully!');
+        }
+    </script>
+</body>
+</html>
