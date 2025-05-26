@@ -18,10 +18,23 @@ DAYS_OF_WEEK = [
 ]
 @admin.register(EmailObject)
 class EmailObjectAdmin(admin.ModelAdmin):
-    list_display = ('subject', 'sent_at', 'status', 'contact', 'opened','campaign')
+    list_display = ('subject', 'sent_at', 'status', 'contact', 'opened', 'campaign', 'last_sender_display')
     list_filter = ('status', 'sent_at', 'opened', 'replied', 'campaign')
     search_fields = ('subject', 'contact__email')
     # list_editable = ('campaign',)
+
+    def last_sender_display(self, obj):
+        # Assumes EmailObject has a ForeignKey to EmailContact as 'contact'
+        # and EmailContact has a ForeignKey to SendingProfile as 'last_sender'
+        return obj.contact.last_sender if obj.contact and obj.contact.last_sender else "-"
+    last_sender_display.short_description = 'Last Sender'
+
+    # To show last_sender on the edit screen, add it as a readonly field or to fieldsets if editable
+    readonly_fields = ('last_sender_from_contact',)
+
+    def last_sender_from_contact(self, obj):
+        return obj.contact.last_sender if obj.contact and obj.contact.last_sender else "-"
+    last_sender_from_contact.short_description = 'Last Sender'
 @admin.register(Campaign)
 class CampaignAdmin(admin.ModelAdmin):
     list_display = ('name', 'status', 'start_date', 'end_date', 'next_schedule_run', 'total_steps')
