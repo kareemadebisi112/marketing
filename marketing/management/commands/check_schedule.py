@@ -14,7 +14,7 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.WARNING(f"Contact {contact.email} is unsubscribed."))
                 continue
 
-            time.sleep(random.randint(10, 30))
+            time.sleep(random.randint(30, 60))
 
             result = send_email(contact, campaign, template)
             
