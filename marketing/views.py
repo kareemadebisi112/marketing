@@ -233,6 +233,18 @@ def eventbrite_webhook(request):
             mailing_list.contacts.add(contact)
             mailing_list.save()
 
+            EmailEvent.objects.create(
+                email=email,
+                event_type='order.placed',
+                timestamp=datetime.datetime.now(),
+                metadata={
+                    'first_name': first_name,
+                    'last_name': last_name,
+                    'event_id': event_id,
+                    'webhook_id': webhook_id,
+                }
+            )
+
             # You can now use these variables as needed, e.g. save to DB or log
             print(f"Contact Saved: {first_name} {last_name}, Email: {email}, Mailing List: {mailing_list.name}")
         return JsonResponse({'status': 'success',}, status=200)
