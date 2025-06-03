@@ -10,6 +10,7 @@ from django.template import Template, Context
 from django.db.models import Count, Q
 import requests
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 
         
 def index(request):
@@ -227,12 +228,17 @@ def eventbrite_webhook(request):
                 subscribed=True,  # Assuming they are subscribed by default
             )
 
-            mailing_list = MailingList.objects.filter(event_id=event_id).first()
-            if not mailing_list:
-                mailing_list = MailingList.objects.create(name=f"Event {event_id} Mailing List", event_id=event_id)
-            mailing_list.contacts.add(contact)
-            mailing_list.save()
-
+            mailing_list = get_object_or_404(MailingList, event_id=event_id)
+            if mailing_list:
+                mailing_list.contacts.add(contact)
+                mailing_list.save()
+            else:
+                mailing_list = MailingList.objects.create(
+                    name=f"Event {event_id} Mailing List",
+                    event_id=event_id,
+                    contacts=[contact],
+                )
+                
             EmailEvent.objects.create(
                 email=email,
                 event_type='order.placed',
