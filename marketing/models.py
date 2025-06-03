@@ -99,6 +99,7 @@ class MailingList(BaseModel):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     contacts = models.ManyToManyField(EmailContact, related_name='mailing_lists')
+    event_id = models.CharField(max_length=255, blank=True, null=True)  # For tracking purposes
 
     def __str__(self):
         return self.name
