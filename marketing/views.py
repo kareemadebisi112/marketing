@@ -8,6 +8,8 @@ from django.shortcuts import render
 import json
 from django.template import Template, Context
 from django.db.models import Count, Q
+import requests
+from django.conf import settings
 
         
 def index(request):
@@ -189,3 +191,49 @@ def analytics_view(request):
         'next_schedule': next_schedule_data,
     }
     return render(request, 'analytics.html', context)
+
+@csrf_exempt
+def eventbrite_webhook(request):
+    if request.method == "POST":
+        try:
+            payload = json.loads(request.body.decode('utf-8'))
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON payload'}, status=400)
+        
+        api_url = payload.get('api_url')
+        config = payload.get('config', {})
+        action = config.get('action')
+        user_id = config.get('user_id')
+        webhook_id = config.get('webhook_id')
+        api_key = settings.EVENTBRITE_API_KEY
+
+        if action == 'test':
+            return JsonResponse({'status': 'success', 'message': 'Test successful'}, status=200)
+
+        if action == 'order.placed':
+            response = requests.get(api_url, headers={'Authorization': f'Bearer {api_key}'})
+            if response.status_code != 200:
+                return JsonResponse({'error': 'Failed to fetch order details'}, status=400)
+            order = response.json()
+            first_name = order.get('first_name')
+            last_name = order.get('last_name')
+            email = order.get('email')
+            event_id = order.get('event_id')
+
+            contact = EmailContact.objects.create(
+                email=email,
+                first_name=first_name,
+                last_name=last_name,
+                subscribed=True,  # Assuming they are subscribed by default
+            )
+
+            mailing_list = MailingList.objects.filter(event_id=event_id).first()
+            if not mailing_list:
+                mailing_list = MailingList.objects.create(name=f"Event {event_id} Mailing List", event_id=event_id)
+            mailing_list.contacts.add(contact)
+            mailing_list.save()
+
+            # You can now use these variables as needed, e.g. save to DB or log
+            print(f"Contact Saved: {first_name} {last_name}, Email: {email}, Mailing List: {mailing_list.name}")
+        return JsonResponse({'status': 'success',}, status=200)
+    return JsonResponse({'status': 'invalid method'}, status=405)
